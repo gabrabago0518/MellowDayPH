@@ -2,25 +2,25 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col bg-white text-zinc-900">
       {/* Header */}
-      <header className="border-b border-zinc-200">
+      <header className="border-b border-red-700 bg-red-600">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <span className="text-lg font-semibold tracking-tight">
+          <span className="text-lg font-semibold tracking-tight text-white">
             Mellow Day PH
           </span>
-          <nav className="hidden gap-8 text-sm font-medium text-zinc-600 sm:flex">
-            <a href="#about" className="hover:text-zinc-900">
+          <nav className="hidden gap-8 text-sm font-medium text-red-100 sm:flex">
+            <a href="#about" className="hover:text-white">
               About
             </a>
-            <a href="#offerings" className="hover:text-zinc-900">
+            <a href="#offerings" className="hover:text-white">
               Offerings
             </a>
-            <a href="#contact" className="hover:text-zinc-900">
+            <a href="#contact" className="hover:text-white">
               Contact
             </a>
           </nav>
           <a
             href="#contact"
-            className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+            className="rounded-full bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
           >
             Get in touch
           </a>

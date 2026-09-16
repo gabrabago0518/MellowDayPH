@@ -18,10 +18,7 @@ export default function Hero() {
 
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col-reverse items-center justify-center gap-10 px-6 pb-20 pt-28 md:flex-row md:pb-28 md:pt-36">
         <Reveal className="flex-1 text-center md:text-left">
-          <span className="inline-block rounded-full bg-cream/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-cream/90 lg:text-sm">
-            MELLOW DAY PH
-          </span>
-          <h1 className="mt-5 font-heading text-4xl font-extrabold leading-tight text-cream sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="font-heading text-4xl font-extrabold leading-tight text-cream sm:text-5xl md:text-6xl lg:text-7xl">
             A mellow day,
             <br />
             every day.

@@ -89,7 +89,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: "non-coffee-matcha-berry-latte", name: "Matcha Berry Latte", price: 190, category: "Non Coffee", color: "#B15C7A", image: "/matchaberry-latte.png" },
   { id: "non-coffee-chocolate-latte", name: "Chocolate Latte", price: 165, category: "Non Coffee", color: "#6B4226", image: "/chocolate-latte.png" },
   { id: "non-coffee-misugaru", name: "Misugaru", price: 150, category: "Non Coffee", color: "#C9A66B", image: "/misugaru.png" },
-  { id: "non-coffee-coconut-matcha-latte", name: "Coconut Matcha Latte", price: 185, category: "Non Coffee", color: "#A9C46F" },
+  { id: "non-coffee-coconut-matcha-latte", name: "Coconut Matcha Latte", price: 185, category: "Non Coffee", color: "#A9C46F", image: "/coconut-matcha-latte.png" },
   { id: "non-coffee-ube-coconut-latte", name: "Ube Coconut Latte", price: 175, category: "Non Coffee", color: "#8E7BC4", image: "/ube-coconut-latte.png" },
   { id: "non-coffee-ube-latte", name: "Ube Latte", price: 165, category: "Non Coffee", color: "#8E7BC4", image: "/ube-latte.png" },
   { id: "non-coffee-moonlight-matcha", name: "Moonlight Matcha", price: 195, category: "Non Coffee", color: "#7FA35C", image: "/moonlight-matcha.png" },
@@ -119,7 +119,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: "refreshers-calamansi-ade", name: "Calamansi Ade", price: 155, category: "Refreshers", color: "#C9D98A", image: "/calamansi-ade.png" },
 
   // Desserts
-  { id: "desserts-mellow-cookies-oreo", name: "Mellow Cookies Oreo", price: 165, category: "Desserts", color: "#3B2314" },
+  { id: "desserts-mellow-cookies-oreo", name: "Mellow Cookies Oreo", price: 165, category: "Desserts", color: "#3B2314", image: "/mellow-cookies-oreo.png" },
   { id: "desserts-dubai-chewy-cookie-bites", name: "Dubai Chewy Cookie Bites", price: 215, category: "Desserts", color: "#6B4226", image: "/dubai-chewy-cookie-bites.png" },
   { id: "desserts-dubai-chewy-cookie", name: "Dubai Chewy Cookie", price: 170, category: "Desserts", color: "#C99A4B", image: "/dubai-chewy-cookie.png" },
   { id: "desserts-choco-chip-muffin", name: "Choco Chip Muffin", price: 125, category: "Desserts", color: "#6B4226", image: "/choco-chip-muffin.png" },

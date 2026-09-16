@@ -1,23 +1,24 @@
-import CupIllustration from "./CupIllustration";
+import Image from "next/image";
 import Reveal from "./Reveal";
 
 export default function Hero() {
   return (
     <section
       id="home"
-      className="relative overflow-hidden bg-gradient-to-br from-brown-900 via-brown-800 to-brown-700"
+      className="relative isolate flex min-h-screen items-center overflow-hidden"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-green/20 blur-3xl"
+      <Image
+        src="/hero-bg.jpg"
+        alt=""
+        fill
+        priority
+        className="object-cover"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-gold/10 blur-3xl"
-      />
+      <div className="absolute inset-0 bg-gradient-to-r from-brown-900/95 via-brown-900/70 to-brown-900/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brown-900/80 via-transparent to-transparent" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col-reverse items-center justify-center gap-10 px-6 pb-20 pt-28 md:flex-row md:pb-28 md:pt-36">
-        <Reveal className="flex-1 text-center md:text-left">
+      <div className="relative mx-auto w-full max-w-7xl px-6 pb-20 pt-28 md:pb-28 md:pt-36">
+        <Reveal className="mx-auto max-w-xl text-center md:mx-0 md:text-left">
           <h1 className="font-heading text-4xl font-extrabold leading-tight text-cream sm:text-5xl md:text-6xl lg:text-7xl">
             A mellow day,
             <br />
@@ -41,17 +42,6 @@ export default function Hero() {
             >
               Contact Us
             </a>
-          </div>
-        </Reveal>
-
-        <Reveal delay={150} className="flex flex-1 justify-center">
-          <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-cream/10 sm:h-80 sm:w-80 lg:h-96 lg:w-96">
-            <div className="animate-float">
-              <CupIllustration color="#F2B705" className="h-48 w-auto drop-shadow-2xl sm:h-64 lg:h-80" />
-            </div>
-            <span className="animate-float-slow absolute -left-2 top-6 h-4 w-4 rounded-full bg-green/70" />
-            <span className="animate-float absolute right-4 top-16 h-3 w-3 rounded-full bg-gold/80" />
-            <span className="animate-float-slow absolute bottom-8 right-0 h-5 w-5 rounded-full bg-cream/40" />
           </div>
         </Reveal>
       </div>

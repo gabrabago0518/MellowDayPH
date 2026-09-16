@@ -1,4 +1,4 @@
-import CupIllustration from "./CupIllustration";
+import Image from "next/image";
 import Reveal from "./Reveal";
 
 const FEATURES = [
@@ -12,12 +12,14 @@ export default function About() {
     <section id="about" className="bg-cream">
       <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 md:grid-cols-2 md:items-center md:py-28 lg:py-32">
         <Reveal className="order-2 md:order-1">
-          <div className="relative flex aspect-square items-center justify-center rounded-[2.5rem] bg-green/20">
-            <div className="animate-float-slow flex gap-4">
-              <CupIllustration color="#8A5A34" className="h-36 w-auto sm:h-44" />
-              <CupIllustration color="#E77E8A" className="mt-10 h-32 w-auto sm:h-40" />
-            </div>
-            <span className="absolute left-6 top-8 rounded-full bg-cream px-4 py-1.5 text-xs font-bold text-brown-900 shadow-sm">
+          <div className="relative aspect-square overflow-hidden rounded-[2.5rem] bg-green/20">
+            <Image
+              src="/about.jpg"
+              alt="A hand-drawn welcome sign outside the Mellow Day PH store"
+              fill
+              className="object-cover"
+            />
+            <span className="absolute left-6 top-6 rounded-full bg-cream px-4 py-1.5 text-xs font-bold text-brown-900 shadow-sm">
               Since day one 🍵
             </span>
           </div>

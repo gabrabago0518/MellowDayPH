@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Reveal from "./Reveal";
 import { IconPin } from "./icons";
 
@@ -5,21 +6,20 @@ export default function VisitUs() {
   return (
     <section id="visit" className="bg-cream px-6 py-20 md:py-28 lg:py-32">
       <Reveal className="mx-auto max-w-7xl">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brown-900 via-brown-800 to-brown-700 px-6 py-16 text-center sm:px-12">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -left-10 -top-10 h-56 w-56 rounded-full bg-green/20 blur-3xl"
+        <div className="relative overflow-hidden rounded-[2.5rem] px-6 py-16 text-center sm:px-12">
+          <Image
+            src="/visit-us-bg.jpg"
+            alt="The Mellow Day PH storefront"
+            fill
+            className="object-cover"
           />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-10 -bottom-10 h-56 w-56 rounded-full bg-gold/15 blur-3xl"
-          />
+          <div className="absolute inset-0 bg-brown-900/70" />
 
-          <IconPin className="mx-auto h-8 w-8 text-cream/80" />
-          <h2 className="mt-4 font-heading text-3xl font-extrabold text-cream sm:text-4xl lg:text-5xl">
+          <IconPin className="relative mx-auto h-8 w-8 text-cream/80" />
+          <h2 className="relative mt-4 font-heading text-3xl font-extrabold text-cream sm:text-4xl lg:text-5xl">
             Visit Us
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-cream/80">
+          <p className="relative mx-auto mt-3 max-w-md text-sm text-cream/80">
             Find your nearest Mellow Day PH branch and drop by for a cup
             made just for you.
           </p>
@@ -27,7 +27,7 @@ export default function VisitUs() {
             href="https://www.google.com/maps/search/Mellow+Day+PH"
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-block rounded-full bg-cream px-7 py-3.5 text-sm font-bold text-brown-900 shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
+            className="relative mt-8 inline-block rounded-full bg-cream px-7 py-3.5 text-sm font-bold text-brown-900 shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
           >
             Find a Store
           </a>

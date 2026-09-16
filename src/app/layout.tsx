@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   title: "Mellow Day PH",
   description:
     "Handcrafted milk tea, coffee, and specialty drinks made slow, made fresh — a mellow day, every day.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

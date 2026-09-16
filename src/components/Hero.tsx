@@ -16,17 +16,17 @@ export default function Hero() {
         className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-gold/10 blur-3xl"
       />
 
-      <div className="relative mx-auto flex max-w-6xl flex-col-reverse items-center gap-10 px-6 pb-20 pt-28 md:flex-row md:pb-28 md:pt-36">
+      <div className="relative mx-auto flex min-h-[85vh] max-w-7xl flex-col-reverse items-center justify-center gap-10 px-6 pb-20 pt-28 md:flex-row md:pb-28 md:pt-36">
         <Reveal className="flex-1 text-center md:text-left">
-          <span className="inline-block rounded-full bg-cream/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-cream/90">
+          <span className="inline-block rounded-full bg-cream/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-cream/90 lg:text-sm">
             MELLOW DAY PH
           </span>
-          <h1 className="mt-5 font-heading text-4xl font-extrabold leading-tight text-cream sm:text-5xl md:text-6xl">
+          <h1 className="mt-5 font-heading text-4xl font-extrabold leading-tight text-cream sm:text-5xl md:text-6xl lg:text-7xl">
             A mellow day,
             <br />
             every day.
           </h1>
-          <p className="mx-auto mt-5 max-w-md text-base text-cream/80 md:mx-0">
+          <p className="mx-auto mt-5 max-w-md text-base text-cream/80 md:mx-0 lg:max-w-lg lg:text-lg">
             Handcrafted milk tea, coffee, and specialty drinks made slow,
             made fresh, and made to help you press pause — one sip at a
             time.
@@ -34,13 +34,13 @@ export default function Hero() {
           <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
             <a
               href="#menu"
-              className="rounded-full bg-cream px-7 py-3.5 text-sm font-bold text-brown-900 shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
+              className="rounded-full bg-cream px-7 py-3.5 text-sm font-bold text-brown-900 shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5 lg:px-8 lg:py-4 lg:text-base"
             >
               Order Now
             </a>
             <a
               href="#visit"
-              className="rounded-full border-2 border-cream/60 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:bg-cream/10"
+              className="rounded-full border-2 border-cream/60 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:bg-cream/10 lg:px-8 lg:py-4 lg:text-base"
             >
               Contact Us
             </a>
@@ -48,9 +48,9 @@ export default function Hero() {
         </Reveal>
 
         <Reveal delay={150} className="flex flex-1 justify-center">
-          <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-cream/10 sm:h-80 sm:w-80">
+          <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-cream/10 sm:h-80 sm:w-80 lg:h-96 lg:w-96">
             <div className="animate-float">
-              <CupIllustration color="#F2B705" className="h-48 w-auto drop-shadow-2xl sm:h-64" />
+              <CupIllustration color="#F2B705" className="h-48 w-auto drop-shadow-2xl sm:h-64 lg:h-80" />
             </div>
             <span className="animate-float-slow absolute -left-2 top-6 h-4 w-4 rounded-full bg-green/70" />
             <span className="animate-float absolute right-4 top-16 h-3 w-3 rounded-full bg-gold/80" />

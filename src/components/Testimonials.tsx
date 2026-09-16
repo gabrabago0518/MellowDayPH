@@ -15,9 +15,9 @@ export default function Testimonials() {
 
   return (
     <section className="bg-cream">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-20 md:py-28 lg:py-32">
         <Reveal>
-          <h2 className="text-center font-heading text-3xl font-extrabold text-brown-900 sm:text-4xl">
+          <h2 className="text-center font-heading text-3xl font-extrabold text-brown-900 sm:text-4xl lg:text-5xl">
             What Our Fans Say
           </h2>
         </Reveal>

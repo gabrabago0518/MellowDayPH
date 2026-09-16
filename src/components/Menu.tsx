@@ -80,9 +80,9 @@ export default function Menu() {
 
   return (
     <section id="menu" className="bg-green">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-20 md:py-28 lg:py-32">
         <Reveal className="text-center md:text-left">
-          <h2 className="font-heading text-3xl font-extrabold text-brown-900 sm:text-4xl">
+          <h2 className="font-heading text-3xl font-extrabold text-brown-900 sm:text-4xl lg:text-5xl">
             Menu
           </h2>
           <p className="mt-2 max-w-lg text-sm text-brown-900/80 md:mx-0">

@@ -3,8 +3,8 @@ import { IconPin } from "./icons";
 
 export default function VisitUs() {
   return (
-    <section id="visit" className="bg-cream px-6 py-20 md:py-28">
-      <Reveal className="mx-auto max-w-6xl">
+    <section id="visit" className="bg-cream px-6 py-20 md:py-28 lg:py-32">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brown-900 via-brown-800 to-brown-700 px-6 py-16 text-center sm:px-12">
           <div
             aria-hidden
@@ -16,7 +16,7 @@ export default function VisitUs() {
           />
 
           <IconPin className="mx-auto h-8 w-8 text-cream/80" />
-          <h2 className="mt-4 font-heading text-3xl font-extrabold text-cream sm:text-4xl">
+          <h2 className="mt-4 font-heading text-3xl font-extrabold text-cream sm:text-4xl lg:text-5xl">
             Visit Us
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-cream/80">

@@ -10,7 +10,7 @@ const FEATURES = [
 export default function About() {
   return (
     <section id="about" className="bg-cream">
-      <div className="mx-auto grid max-w-6xl gap-14 px-6 py-20 md:grid-cols-2 md:items-center md:py-28">
+      <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 md:grid-cols-2 md:items-center md:py-28 lg:py-32">
         <Reveal className="order-2 md:order-1">
           <div className="relative flex aspect-square items-center justify-center rounded-[2.5rem] bg-green/20">
             <div className="animate-float-slow flex gap-4">
@@ -24,7 +24,7 @@ export default function About() {
         </Reveal>
 
         <Reveal delay={150} className="order-1 md:order-2">
-          <h2 className="font-heading text-3xl font-extrabold text-brown-900 sm:text-4xl">
+          <h2 className="font-heading text-3xl font-extrabold text-brown-900 sm:text-4xl lg:text-5xl">
             A mellow day, every day.
           </h2>
           <p className="mt-5 text-base leading-relaxed text-brown-800/90">

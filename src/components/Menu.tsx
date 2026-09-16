@@ -3,7 +3,76 @@
 import { useState } from "react";
 import CupIllustration from "./CupIllustration";
 import Reveal from "./Reveal";
-import { MENU_CATEGORIES, MENU_ITEMS, type MenuCategory } from "@/lib/menu-data";
+import { IconMinus, IconPlus } from "./icons";
+import { useCart } from "@/lib/CartContext";
+import {
+  MENU_CATEGORIES,
+  MENU_ITEMS,
+  formatPrice,
+  type MenuCategory,
+} from "@/lib/menu-data";
+
+function MenuCard({
+  name,
+  price,
+  color,
+  delay,
+}: {
+  name: string;
+  price: number;
+  color: string;
+  delay: number;
+}) {
+  const { items, addItem, updateQuantity } = useCart();
+  const inCart = items.find((item) => item.name === name);
+
+  return (
+    <Reveal delay={delay}>
+      <div className="group flex h-full flex-col items-center rounded-2xl bg-cream p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+        <CupIllustration
+          color={color}
+          className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-28"
+        />
+        <h3 className="mt-4 text-sm font-bold text-brown-900">{name}</h3>
+        <p className="mt-1 text-sm font-semibold text-brown-700/80">
+          {formatPrice(price)}
+        </p>
+
+        {inCart ? (
+          <div className="mt-3 flex items-center gap-3 rounded-full bg-brown-100/60 px-2 py-1">
+            <button
+              type="button"
+              aria-label={`Decrease quantity of ${name}`}
+              onClick={() => updateQuantity(name, inCart.quantity - 1)}
+              className="flex h-6 w-6 items-center justify-center rounded-full text-brown-900 hover:bg-cream"
+            >
+              <IconMinus className="h-3.5 w-3.5" />
+            </button>
+            <span className="w-4 text-center text-sm font-semibold text-brown-900">
+              {inCart.quantity}
+            </span>
+            <button
+              type="button"
+              aria-label={`Increase quantity of ${name}`}
+              onClick={() => addItem(name, price)}
+              className="flex h-6 w-6 items-center justify-center rounded-full text-brown-900 hover:bg-cream"
+            >
+              <IconPlus className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => addItem(name, price)}
+            className="mt-3 rounded-full bg-brown-900 px-4 py-2 text-xs font-bold text-cream transition-colors hover:bg-brown-800"
+          >
+            Add to Cart
+          </button>
+        )}
+      </div>
+    </Reveal>
+  );
+}
 
 export default function Menu() {
   const [active, setActive] = useState<MenuCategory>(MENU_CATEGORIES[0]);
@@ -43,20 +112,13 @@ export default function Menu() {
 
         <div key={active} className="animate-fade-in mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {items.map((item, i) => (
-            <Reveal key={item.name} delay={i * 60}>
-              <div className="group flex h-full flex-col items-center rounded-2xl bg-cream p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
-                <CupIllustration
-                  color={item.color}
-                  className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-28"
-                />
-                <h3 className="mt-4 text-sm font-bold text-brown-900">
-                  {item.name}
-                </h3>
-                <p className="mt-1 text-sm font-semibold text-brown-700/80">
-                  {item.price}
-                </p>
-              </div>
-            </Reveal>
+            <MenuCard
+              key={item.name}
+              name={item.name}
+              price={item.price}
+              color={item.color}
+              delay={i * 60}
+            />
           ))}
         </div>
       </div>

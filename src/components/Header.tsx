@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Logo from "./Logo";
-import { IconClose, IconMenu } from "./icons";
+import { useCart } from "@/lib/CartContext";
+import { IconCart, IconClose, IconMenu } from "./icons";
 
 const NAV_LINKS = [
   { href: "#home", label: "Home" },
@@ -10,6 +11,25 @@ const NAV_LINKS = [
   { href: "#menu", label: "Menu" },
   { href: "#visit", label: "Visit Us" },
 ];
+
+function CartButton({ className = "" }: { className?: string }) {
+  const { totalItems, openCart } = useCart();
+  return (
+    <button
+      type="button"
+      onClick={openCart}
+      aria-label={`Open cart${totalItems > 0 ? ` (${totalItems} items)` : ""}`}
+      className={`relative rounded-full p-2 text-brown-900 hover:bg-brown-100/60 ${className}`}
+    >
+      <IconCart className="h-6 w-6" />
+      {totalItems > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-green px-1 text-[10px] font-bold text-brown-900">
+          {totalItems}
+        </span>
+      )}
+    </button>
+  );
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -46,7 +66,8 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-2 md:flex">
+          <CartButton />
           <a
             href="#menu"
             className="rounded-full bg-brown-900 px-5 py-2.5 text-sm font-semibold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
@@ -55,14 +76,17 @@ export default function Header() {
           </a>
         </div>
 
-        <button
-          type="button"
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-          className="rounded-full p-2 text-brown-900 md:hidden"
-        >
-          {open ? <IconClose className="h-6 w-6" /> : <IconMenu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <CartButton />
+          <button
+            type="button"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-full p-2 text-brown-900"
+          >
+            {open ? <IconClose className="h-6 w-6" /> : <IconMenu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       <div

@@ -11,6 +11,7 @@ import {
 } from "react";
 
 export type CartItem = {
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -18,9 +19,9 @@ export type CartItem = {
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (name: string, price: number) => void;
-  removeItem: (name: string) => void;
-  updateQuantity: (name: string, quantity: number) => void;
+  addItem: (id: string, name: string, price: number) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -58,30 +59,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, hydrated]);
 
-  const addItem = useCallback((name: string, price: number) => {
+  const addItem = useCallback((id: string, name: string, price: number) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.name === name);
+      const existing = prev.find((item) => item.id === id);
       if (existing) {
         return prev.map((item) =>
-          item.name === name ? { ...item, quantity: item.quantity + 1 } : item,
+          item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
         );
       }
-      return [...prev, { name, price, quantity: 1 }];
+      return [...prev, { id, name, price, quantity: 1 }];
     });
   }, []);
 
-  const removeItem = useCallback((name: string) => {
-    setItems((prev) => prev.filter((item) => item.name !== name));
+  const removeItem = useCallback((id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
   const updateQuantity = useCallback(
-    (name: string, quantity: number) => {
+    (id: string, quantity: number) => {
       if (quantity <= 0) {
-        removeItem(name);
+        removeItem(id);
         return;
       }
       setItems((prev) =>
-        prev.map((item) => (item.name === name ? { ...item, quantity } : item)),
+        prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
       );
     },
     [removeItem],

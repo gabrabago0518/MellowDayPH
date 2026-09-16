@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import CupIllustration from "./CupIllustration";
+import FoodIllustration from "./FoodIllustration";
 import Reveal from "./Reveal";
 import { IconMinus, IconPlus } from "./icons";
 import { useCart } from "@/lib/CartContext";
@@ -9,27 +10,33 @@ import {
   MENU_CATEGORIES,
   MENU_ITEMS,
   formatPrice,
+  isFoodCategory,
   type MenuCategory,
 } from "@/lib/menu-data";
 
 function MenuCard({
+  id,
   name,
   price,
   color,
+  isFood,
   delay,
 }: {
+  id: string;
   name: string;
   price: number;
   color: string;
+  isFood: boolean;
   delay: number;
 }) {
   const { items, addItem, updateQuantity } = useCart();
-  const inCart = items.find((item) => item.name === name);
+  const inCart = items.find((item) => item.id === id);
+  const Illustration = isFood ? FoodIllustration : CupIllustration;
 
   return (
     <Reveal delay={delay}>
       <div className="group flex h-full flex-col items-center rounded-2xl bg-cream p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
-        <CupIllustration
+        <Illustration
           color={color}
           className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-28"
         />
@@ -43,7 +50,7 @@ function MenuCard({
             <button
               type="button"
               aria-label={`Decrease quantity of ${name}`}
-              onClick={() => updateQuantity(name, inCart.quantity - 1)}
+              onClick={() => updateQuantity(id, inCart.quantity - 1)}
               className="flex h-6 w-6 items-center justify-center rounded-full text-brown-900 hover:bg-cream"
             >
               <IconMinus className="h-3.5 w-3.5" />
@@ -54,7 +61,7 @@ function MenuCard({
             <button
               type="button"
               aria-label={`Increase quantity of ${name}`}
-              onClick={() => addItem(name, price)}
+              onClick={() => addItem(id, name, price)}
               className="flex h-6 w-6 items-center justify-center rounded-full text-brown-900 hover:bg-cream"
             >
               <IconPlus className="h-3.5 w-3.5" />
@@ -63,7 +70,7 @@ function MenuCard({
         ) : (
           <button
             type="button"
-            onClick={() => addItem(name, price)}
+            onClick={() => addItem(id, name, price)}
             className="mt-3 rounded-full bg-brown-900 px-4 py-2 text-xs font-bold text-cream transition-colors hover:bg-brown-800"
           >
             Add to Cart
@@ -77,6 +84,7 @@ function MenuCard({
 export default function Menu() {
   const [active, setActive] = useState<MenuCategory>(MENU_CATEGORIES[0]);
   const items = MENU_ITEMS.filter((item) => item.category === active);
+  const foodCategory = isFoodCategory(active);
 
   return (
     <section id="menu" className="bg-green">
@@ -113,10 +121,12 @@ export default function Menu() {
         <div key={active} className="animate-fade-in mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {items.map((item, i) => (
             <MenuCard
-              key={item.name}
+              key={item.id}
+              id={item.id}
               name={item.name}
               price={item.price}
               color={item.color}
+              isFood={foodCategory}
               delay={i * 60}
             />
           ))}

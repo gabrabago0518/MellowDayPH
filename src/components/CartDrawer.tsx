@@ -113,7 +113,7 @@ export default function CartDrawer() {
           ) : (
             <ul className="space-y-4">
               {items.map((item) => (
-                <li key={item.name} className="flex items-center gap-3">
+                <li key={item.id} className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-brown-900">
                       {item.name}
@@ -127,7 +127,7 @@ export default function CartDrawer() {
                     <button
                       type="button"
                       aria-label={`Decrease quantity of ${item.name}`}
-                      onClick={() => updateQuantity(item.name, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       className="flex h-6 w-6 items-center justify-center rounded-full text-brown-900 hover:bg-cream"
                     >
                       <IconMinus className="h-3.5 w-3.5" />
@@ -138,7 +138,7 @@ export default function CartDrawer() {
                     <button
                       type="button"
                       aria-label={`Increase quantity of ${item.name}`}
-                      onClick={() => updateQuantity(item.name, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       className="flex h-6 w-6 items-center justify-center rounded-full text-brown-900 hover:bg-cream"
                     >
                       <IconPlus className="h-3.5 w-3.5" />
@@ -152,7 +152,7 @@ export default function CartDrawer() {
                   <button
                     type="button"
                     aria-label={`Remove ${item.name} from cart`}
-                    onClick={() => removeItem(item.name)}
+                    onClick={() => removeItem(item.id)}
                     className="shrink-0 text-brown-900/50 hover:text-brown-900"
                   >
                     <IconTrash className="h-4 w-4" />

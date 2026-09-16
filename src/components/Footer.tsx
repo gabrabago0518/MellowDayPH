@@ -5,28 +5,34 @@ const NAV_LINKS = [
   { href: "#home", label: "Home" },
   { href: "#about", label: "About" },
   { href: "#menu", label: "Menu" },
-  { href: "#visit", label: "Visit Us" },
+  { href: "#menu", label: "Order" },
 ];
 
 export default function Footer() {
   return (
-    <footer className="mt-auto bg-green">
-      <div className="mx-auto max-w-6xl px-6 py-14">
-        <div className="flex flex-col items-center justify-between gap-8 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <Logo />
-            <span className="font-heading text-xl font-bold text-brown-900">
-              Mellow Day
-            </span>
-          </div>
+    <footer className="mt-auto bg-cream px-4 pb-6 sm:px-6">
+      <div className="mx-auto max-w-6xl rounded-[2.5rem] bg-green px-6 py-8 sm:px-10 md:py-10">
+        <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-6">
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
+            <div className="flex items-center gap-3">
+              <Logo />
+              <span className="font-heading text-xl font-bold text-brown-900">
+                Mellow Day
+              </span>
+            </div>
 
-          <nav className="flex flex-wrap justify-center gap-6 text-sm font-semibold text-brown-900">
-            {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="transition-colors hover:text-brown-700">
-                {link.label}
-              </a>
-            ))}
-          </nav>
+            <nav className="flex flex-wrap gap-6 text-sm font-semibold text-brown-900">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="transition-colors hover:text-brown-700"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          </div>
 
           <div className="flex gap-3">
             <a
@@ -46,7 +52,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-brown-900/15 pt-6 text-center text-xs text-brown-900/70">
+        <div className="mt-6 border-t border-brown-900/15 pt-5 text-center text-xs text-brown-900/70">
           &copy; {new Date().getFullYear()} Mellow Day PH. All rights
           reserved.
         </div>

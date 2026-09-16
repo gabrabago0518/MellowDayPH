@@ -16,7 +16,7 @@ export default function Hero() {
         className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-gold/10 blur-3xl"
       />
 
-      <div className="relative mx-auto flex min-h-[85vh] max-w-7xl flex-col-reverse items-center justify-center gap-10 px-6 pb-20 pt-28 md:flex-row md:pb-28 md:pt-36">
+      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col-reverse items-center justify-center gap-10 px-6 pb-20 pt-28 md:flex-row md:pb-28 md:pt-36">
         <Reveal className="flex-1 text-center md:text-left">
           <span className="inline-block rounded-full bg-cream/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-cream/90 lg:text-sm">
             MELLOW DAY PH

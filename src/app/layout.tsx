@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Baloo_2, Nunito } from "next/font/google";
+import { Nunito, Paytone_One, Radio_Canada_Big } from "next/font/google";
 import "./globals.css";
 
-const baloo = Baloo_2({
+const paytoneOne = Paytone_One({
   variable: "--font-heading",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const radioCanadaBig = Radio_Canada_Big({
+  variable: "--font-subheading",
   subsets: ["latin"],
 });
 
@@ -22,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${baloo.variable} ${nunito.variable} h-full antialiased`}
+      className={`${paytoneOne.variable} ${radioCanadaBig.variable} ${nunito.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-body">

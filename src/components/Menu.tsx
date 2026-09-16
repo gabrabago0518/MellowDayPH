@@ -33,7 +33,7 @@ function MenuCard({
           color={color}
           className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-28"
         />
-        <h3 className="mt-4 text-sm font-bold text-brown-900">{name}</h3>
+        <h3 className="font-subheading mt-4 text-sm font-bold text-brown-900">{name}</h3>
         <p className="mt-1 text-sm font-semibold text-brown-700/80">
           {formatPrice(price)}
         </p>

@@ -48,7 +48,7 @@ export default function Testimonials() {
                 <p className="mt-4 text-sm leading-relaxed text-brown-900/90">
                   {t.quote}
                 </p>
-                <p className="mt-4 font-heading text-sm font-bold text-brown-900">
+                <p className="font-subheading mt-4 text-sm font-bold text-brown-900">
                   {t.name}
                 </p>
                 <p className="text-xs text-brown-900/60">{t.role}</p>

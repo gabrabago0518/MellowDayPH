@@ -43,21 +43,21 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-4 sm:px-4">
-      <div className="mx-auto max-w-[1600px]">
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
+      <div className="mx-auto max-w-7xl">
         <div
-          className={`flex items-center justify-between rounded-full bg-cream/95 px-6 py-3 shadow-lg shadow-brown-900/10 backdrop-blur-md transition-shadow duration-300 ${
+          className={`flex items-center justify-between rounded-full bg-cream/95 px-6 py-4 shadow-lg shadow-brown-900/10 backdrop-blur-md transition-shadow duration-300 sm:py-5 ${
             scrolled ? "shadow-xl shadow-brown-900/15" : ""
           }`}
         >
           <a href="#home" className="flex items-center gap-3">
-            <Logo />
-            <span className="font-heading text-lg font-bold text-brown-900">
+            <Logo className="h-12 w-12 sm:h-14 sm:w-14" />
+            <span className="font-heading text-xl font-bold text-brown-900 sm:text-2xl">
               Mellow Day
             </span>
           </a>
 
-          <nav className="hidden items-center gap-8 text-sm font-semibold text-brown-800 md:flex">
+          <nav className="hidden items-center gap-8 text-base font-semibold text-brown-800 md:flex">
             {NAV_LINKS.map((link) => (
               <a key={link.href} href={link.href} className="transition-colors hover:text-brown-900">
                 {link.label}
@@ -65,11 +65,11 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-3 md:flex">
             <CartButton />
             <a
               href="#menu"
-              className="rounded-full bg-brown-900 px-5 py-2.5 text-sm font-semibold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
+              className="rounded-full bg-brown-900 px-6 py-3.5 text-base font-semibold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
             >
               Order Now
             </a>

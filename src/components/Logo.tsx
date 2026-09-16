@@ -1,8 +1,8 @@
-export default function Logo({ className = "" }: { className?: string }) {
+export default function Logo({ className = "h-11 w-11" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 64 64"
-      className={`h-11 w-11 shrink-0 ${className}`}
+      className={`shrink-0 ${className}`}
       role="img"
       aria-label="Mellow Day PH logo"
     >

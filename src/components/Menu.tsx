@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import CupIllustration from "./CupIllustration";
 import FoodIllustration from "./FoodIllustration";
 import Reveal from "./Reveal";
@@ -19,6 +20,7 @@ function MenuCard({
   name,
   price,
   color,
+  image,
   isFood,
   delay,
 }: {
@@ -26,6 +28,7 @@ function MenuCard({
   name: string;
   price: number;
   color: string;
+  image?: string;
   isFood: boolean;
   delay: number;
 }) {
@@ -36,10 +39,16 @@ function MenuCard({
   return (
     <Reveal delay={delay}>
       <div className="group flex h-full flex-col items-center rounded-2xl bg-cream p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
-        <Illustration
-          color={color}
-          className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-28"
-        />
+        {image ? (
+          <div className="relative h-24 w-24 transition-transform duration-300 group-hover:scale-105 sm:h-28 sm:w-28">
+            <Image src={image} alt={name} fill className="object-contain" />
+          </div>
+        ) : (
+          <Illustration
+            color={color}
+            className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-28"
+          />
+        )}
         <h3 className="font-subheading mt-4 text-sm font-bold text-brown-900">{name}</h3>
         <p className="mt-1 text-sm font-semibold text-brown-700/80">
           {formatPrice(price)}
@@ -126,6 +135,7 @@ export default function Menu() {
               name={item.name}
               price={item.price}
               color={item.color}
+              image={item.image}
               isFood={foodCategory}
               delay={i * 60}
             />

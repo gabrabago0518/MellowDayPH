@@ -31,6 +31,7 @@ export type MenuItem = {
   price: number;
   category: MenuCategory;
   color: string;
+  image?: string;
 };
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -51,14 +52,14 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: "coffee-iced-chestnut-latte", name: "Iced Chestnut Latte", price: 185, category: "Coffee", color: "#9C6B3E" },
   { id: "coffee-iced-dirty-matcha", name: "Iced Dirty Matcha", price: 180, category: "Coffee", color: "#7FA35C" },
   { id: "coffee-iced-white-chocolate-mocha", name: "Iced White Chocolate Mocha", price: 180, category: "Coffee", color: "#E8D9B5" },
-  { id: "coffee-ube-dusk", name: "Ube Dusk", price: 190, category: "Coffee", color: "#8E7BC4" },
+  { id: "coffee-ube-dusk", name: "Ube Dusk", price: 190, category: "Coffee", color: "#8E7BC4", image: "/ube-dusk.png" },
   { id: "coffee-strawpresso-latte", name: "Strawpresso Latte", price: 195, category: "Coffee", color: "#E24E5A" },
   { id: "coffee-cold-brew", name: "Cold Brew", price: 180, category: "Coffee", color: "#3B2314" },
   { id: "coffee-cold-brew-latte", name: "Cold Brew Latte", price: 190, category: "Coffee", color: "#9C6B3E" },
   { id: "coffee-caramel-cold-brew", name: "Caramel Cold Brew", price: 200, category: "Coffee", color: "#C08A3E" },
 
   // Hot Drinks
-  { id: "hot-drinks-hot-americano", name: "Hot Americano", price: 125, category: "Hot Drinks", color: "#5C3A1E" },
+  { id: "hot-drinks-hot-americano", name: "Hot Americano", price: 125, category: "Hot Drinks", color: "#5C3A1E", image: "/hot-coffee.png" },
   { id: "hot-drinks-hot-cafe-latte", name: "Hot Cafe Latte", price: 145, category: "Hot Drinks", color: "#9C6B3E" },
   { id: "hot-drinks-hot-cappuccino", name: "Hot Cappuccino", price: 145, category: "Hot Drinks", color: "#B4793A" },
   { id: "hot-drinks-hot-spanish-latte", name: "Hot Spanish Latte", price: 150, category: "Hot Drinks", color: "#A9754A" },
@@ -80,7 +81,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: "signature-drinks-lemon-ade", name: "Lemon Ade", price: 160, category: "Signature Drinks", color: "#F2B705" },
   { id: "signature-drinks-retro-coffee", name: "Retro Coffee", price: 190, category: "Signature Drinks", color: "#B4793A" },
   { id: "signature-drinks-coconut-matcha-cloud", name: "Coconut Matcha Cloud", price: 185, category: "Signature Drinks", color: "#A9C46F" },
-  { id: "signature-drinks-jolly-pong", name: "Jolly Pong", price: 195, category: "Signature Drinks", color: "#C99A4B" },
+  { id: "signature-drinks-jolly-pong", name: "Jolly Pong", price: 195, category: "Signature Drinks", color: "#C99A4B", image: "/jolly-pong.png" },
   { id: "signature-drinks-mint-chocolate", name: "Mint Chocolate", price: 195, category: "Signature Drinks", color: "#5FBF8F" },
   { id: "signature-drinks-cube-latte", name: "Cube Latte", price: 185, category: "Signature Drinks", color: "#8A5A34" },
 
@@ -104,7 +105,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: "frappuccino-biscoff-frappe", name: "Biscoff Frappe", price: 200, category: "Frappuccino", color: "#B4793A" },
   { id: "frappuccino-ube-cream", name: "Ube Cream", price: 190, category: "Frappuccino", color: "#8E7BC4" },
   { id: "frappuccino-strawberry-banana", name: "Strawberry Banana", price: 210, category: "Frappuccino", color: "#F2B705" },
-  { id: "frappuccino-jolly-pong", name: "Jolly Pong", price: 195, category: "Frappuccino", color: "#C99A4B" },
+  { id: "frappuccino-jolly-pong", name: "Jolly Pong", price: 195, category: "Frappuccino", color: "#C99A4B", image: "/jolly-pong.png" },
   { id: "frappuccino-mint-chocolate", name: "Mint Chocolate", price: 205, category: "Frappuccino", color: "#5FBF8F" },
 
   // Smoothie
@@ -113,7 +114,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: "smoothie-plain-yogurt", name: "Plain Yogurt", price: 180, category: "Smoothie", color: "#F4E4C6" },
 
   // Refreshers
-  { id: "refreshers-pomelo-ade", name: "Pomelo Ade", price: 140, category: "Refreshers", color: "#F2B705" },
+  { id: "refreshers-pomelo-ade", name: "Pomelo Ade", price: 140, category: "Refreshers", color: "#F2B705", image: "/pomelo-ade.png" },
   { id: "refreshers-calamansi-ade", name: "Calamansi Ade", price: 155, category: "Refreshers", color: "#C9D98A" },
 
   // Desserts

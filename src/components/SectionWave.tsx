@@ -1,12 +1,21 @@
 export default function SectionWave({
   background,
   fill,
+  overlay = false,
 }: {
-  background: string;
+  background?: string;
   fill: string;
+  overlay?: boolean;
 }) {
   return (
-    <div aria-hidden className={`w-full ${background}`}>
+    <div
+      aria-hidden
+      className={
+        overlay
+          ? "pointer-events-none absolute inset-x-0 bottom-0 w-full"
+          : `w-full ${background ?? ""}`
+      }
+    >
       <svg
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"

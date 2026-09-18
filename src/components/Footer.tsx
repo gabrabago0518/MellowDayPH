@@ -10,7 +10,7 @@ const NAV_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="mt-auto rounded-t-[83px] bg-green px-6 py-10 sm:px-10 md:py-14">
+    <footer className="mt-auto bg-green px-6 py-10 sm:px-10 md:py-14">
       <div className="mx-auto max-w-7xl">
         <div className="flex items-start justify-between gap-6">
           <div className="flex items-center gap-3">

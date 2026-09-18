@@ -19,6 +19,7 @@ export default function Home() {
       <SectionWave background="bg-green" fill="fill-cream" />
       <Testimonials />
       <VisitUs />
+      <SectionWave background="bg-cream" fill="fill-green" />
       <Footer />
       <CartModal />
     </div>

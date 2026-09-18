@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Reveal from "./Reveal";
+import SectionWave from "./SectionWave";
 
 export default function Hero() {
   return (
@@ -45,6 +46,8 @@ export default function Hero() {
           </div>
         </Reveal>
       </div>
+
+      <SectionWave overlay fill="fill-cream" />
     </section>
   );
 }

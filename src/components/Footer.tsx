@@ -13,8 +13,8 @@ export default function Footer() {
     <footer className="mt-auto bg-green px-6 py-10 sm:px-10 md:py-14">
       <div className="mx-auto max-w-7xl">
         <div className="flex items-start justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <Logo />
+          <div className="flex flex-col items-center gap-2">
+            <Logo className="h-20 w-20" />
             <span className="font-heading text-xl font-bold text-brown-900">
               Mellow Day
             </span>

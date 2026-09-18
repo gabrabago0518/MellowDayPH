@@ -91,15 +91,20 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
   }
 
   return (
-    <div className="group flex items-center gap-2 text-sm font-semibold text-brown-800">
+    <div className="group relative py-2 text-sm font-semibold text-brown-800">
       <span className="cursor-default">Hi, {displayName}</span>
-      <button
-        type="button"
-        onClick={() => signOut()}
-        className="hidden text-brown-900/60 underline-offset-2 transition-colors hover:text-brown-900 hover:underline group-hover:inline-block"
-      >
-        Log Out
-      </button>
+
+      <div className="invisible absolute right-0 top-full pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
+        <div className="whitespace-nowrap rounded-2xl bg-cream p-1.5 shadow-lg shadow-brown-900/15">
+          <button
+            type="button"
+            onClick={() => signOut()}
+            className="w-full rounded-xl px-4 py-2 text-left text-sm font-semibold text-brown-900 transition-colors hover:bg-brown-100/60"
+          >
+            Log Out
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

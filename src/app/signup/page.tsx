@@ -61,6 +61,14 @@ export default function SignupPage() {
       return;
     }
 
+    // Supabase deliberately returns a "successful" response with no error
+    // for an email that's already registered (to avoid leaking which
+    // emails exist) — an empty identities array is the actual signal.
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setError("This email is already registered. Try logging in instead.");
+      return;
+    }
+
     if (data.session) {
       router.push("/orders");
     } else {

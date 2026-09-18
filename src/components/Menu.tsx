@@ -35,7 +35,7 @@ export default function Menu() {
                 key={category}
                 type="button"
                 onClick={() => setActive(category)}
-                className={`shrink-0 px-5 pb-4 pt-3 text-sm font-bold transition-colors [clip-path:polygon(0_0,100%_0,100%_100%,50%_78%,0_100%)] ${
+                className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
                   active === category
                     ? "bg-brown-900 text-cream"
                     : "bg-cream/70 text-brown-900 hover:bg-cream"

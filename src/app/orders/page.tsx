@@ -96,7 +96,7 @@ export default function OrdersPage() {
                 You haven&apos;t placed any orders yet.
               </p>
               <Link
-                href="/#menu"
+                href="/menu"
                 className="mt-5 inline-block rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
               >
                 Browse the Menu

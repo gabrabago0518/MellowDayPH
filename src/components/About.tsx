@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Reveal from "./Reveal";
 
 const FEATURES = [
@@ -47,12 +48,12 @@ export default function About() {
               </li>
             ))}
           </ul>
-          <a
-            href="#menu"
+          <Link
+            href="/menu"
             className="mt-8 inline-block rounded-full bg-brown-900 px-7 py-3.5 text-sm font-bold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
           >
             Order Now
-          </a>
+          </Link>
         </Reveal>
       </div>
     </section>

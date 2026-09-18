@@ -160,7 +160,7 @@ export default function CheckoutPage() {
               Add something from the menu before checking out.
             </p>
             <Link
-              href="/#menu"
+              href="/menu"
               className="mt-6 inline-block rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
             >
               Browse the Menu

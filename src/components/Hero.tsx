@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Reveal from "./Reveal";
 import SectionWave from "./SectionWave";
 
@@ -31,12 +32,12 @@ export default function Hero() {
             time.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
-            <a
-              href="#menu"
+            <Link
+              href="/menu"
               className="rounded-full bg-cream px-7 py-3.5 text-sm font-bold text-brown-900 shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5 lg:px-8 lg:py-4 lg:text-base"
             >
               Order Now
-            </a>
+            </Link>
             <a
               href="#visit"
               className="rounded-full border-2 border-cream/60 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:bg-cream/10 lg:px-8 lg:py-4 lg:text-base"

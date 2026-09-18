@@ -10,7 +10,7 @@ import { IconCart, IconClose, IconMenu } from "./icons";
 const NAV_LINKS = [
   { href: "/#home", label: "Home" },
   { href: "/#about", label: "About" },
-  { href: "/#menu", label: "Menu" },
+  { href: "/menu", label: "Menu" },
   { href: "/#visit", label: "Visit Us" },
   { href: "/orders", label: "My Orders" },
 ];
@@ -162,8 +162,7 @@ export default function Header() {
             <AccountLinks />
             <CartButton />
             <Link
-              href="/#menu"
-              onClick={(e) => handleHashNavClick(e, "/#menu")}
+              href="/menu"
               className="rounded-full bg-brown-900 px-6 py-3.5 text-base font-semibold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
             >
               Order Now
@@ -204,11 +203,8 @@ export default function Header() {
             ))}
             <AccountLinks mobile onNavigate={() => setOpen(false)} />
             <Link
-              href="/#menu"
-              onClick={(e) => {
-                handleHashNavClick(e, "/#menu");
-                setOpen(false);
-              }}
+              href="/menu"
+              onClick={() => setOpen(false)}
               className="mt-2 rounded-full bg-brown-900 px-5 py-2.5 text-center text-cream"
             >
               Order Now

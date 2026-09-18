@@ -1,11 +1,12 @@
+import Link from "next/link";
 import Logo from "./Logo";
 import { IconFacebook, IconInstagram } from "./icons";
 
 const NAV_LINKS = [
-  { href: "#home", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#menu", label: "Menu" },
-  { href: "#menu", label: "Order" },
+  { href: "/#home", label: "Home" },
+  { href: "/#about", label: "About" },
+  { href: "/menu", label: "Menu" },
+  { href: "/menu", label: "Order" },
 ];
 
 export default function Footer() {
@@ -40,13 +41,13 @@ export default function Footer() {
 
         <nav className="mt-4 flex flex-wrap gap-6 text-sm font-semibold text-brown-900">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               className="transition-colors hover:text-brown-700"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 

@@ -1,9 +1,9 @@
 import About from "@/components/About";
 import CartModal from "@/components/CartModal";
+import FeaturedMenu from "@/components/FeaturedMenu";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Menu from "@/components/Menu";
 import SectionWave from "@/components/SectionWave";
 import Testimonials from "@/components/Testimonials";
 import VisitUs from "@/components/VisitUs";
@@ -15,7 +15,7 @@ export default function Home() {
       <Hero />
       <About />
       <SectionWave background="bg-cream" fill="fill-green" />
-      <Menu />
+      <FeaturedMenu />
       <SectionWave background="bg-green" fill="fill-cream" />
       <Testimonials />
       <VisitUs />

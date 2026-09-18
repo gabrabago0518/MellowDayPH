@@ -77,7 +77,7 @@ function ConfirmContent() {
                 Your email is confirmed and you&apos;re logged in.
               </p>
               <Link
-                href="/#menu"
+                href="/menu"
                 className="mt-6 inline-block w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
               >
                 Start Ordering

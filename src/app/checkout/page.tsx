@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CartModal from "@/components/CartModal";
+import CupIllustration from "@/components/CupIllustration";
+import FoodIllustration from "@/components/FoodIllustration";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/lib/CartContext";
-import { formatPrice } from "@/lib/menu-data";
+import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
 
 const MIN_AMOUNT_PESOS = 20;
 const DELIVERY_FEE_PESOS = 49;
@@ -365,20 +368,36 @@ export default function CheckoutPage() {
                 <h2 className="font-heading text-lg font-bold text-brown-900">
                   Order Summary
                 </h2>
-                <ul className="mt-4 space-y-2">
-                  {items.map((item) => (
-                    <li
-                      key={item.id}
-                      className="flex items-center justify-between text-sm text-brown-900"
-                    >
-                      <span className="truncate pr-2">
-                        {item.quantity}x {item.name}
-                      </span>
-                      <span className="shrink-0 font-semibold">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
-                    </li>
-                  ))}
+                <ul className="mt-4 space-y-3">
+                  {items.map((item) => {
+                    const menuItem = MENU_ITEMS.find((m) => m.id === item.id);
+                    const Illustration =
+                      menuItem && isFoodCategory(menuItem.category) ? FoodIllustration : CupIllustration;
+
+                    return (
+                      <li key={item.id} className="flex items-center gap-3 text-sm text-brown-900">
+                        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brown-100/40">
+                          {menuItem?.image ? (
+                            <Image
+                              src={menuItem.image}
+                              alt={item.name}
+                              fill
+                              className="object-contain p-0.5"
+                              sizes="44px"
+                            />
+                          ) : (
+                            <Illustration color={menuItem?.color ?? "#5C3A1E"} className="h-8 w-auto" />
+                          )}
+                        </div>
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.quantity}x {item.name}
+                        </span>
+                        <span className="shrink-0 font-semibold">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
                 {fulfillment === "delivery" && (
                   <div className="mt-4 flex items-center justify-between border-t border-brown-900/10 pt-4 text-sm text-brown-900">

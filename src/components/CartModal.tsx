@@ -1,9 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import CupIllustration from "./CupIllustration";
+import FoodIllustration from "./FoodIllustration";
 import Logo from "./Logo";
 import { useCart } from "@/lib/CartContext";
-import { formatPrice } from "@/lib/menu-data";
+import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { IconArrowRight, IconClose, IconMinus, IconPlus, IconTrash } from "./icons";
 
 export default function CartModal() {
@@ -60,11 +63,31 @@ export default function CartModal() {
             </p>
           ) : (
             <ul className="space-y-3">
-              {items.map((item) => (
+              {items.map((item) => {
+                const menuItem = MENU_ITEMS.find((m) => m.id === item.id);
+                const Illustration = menuItem && isFoodCategory(menuItem.category)
+                  ? FoodIllustration
+                  : CupIllustration;
+
+                return (
                 <li
                   key={item.id}
                   className="flex items-center gap-3 rounded-2xl bg-white/70 p-3 shadow-sm"
                 >
+                  <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-cream">
+                    {menuItem?.image ? (
+                      <Image
+                        src={menuItem.image}
+                        alt={item.name}
+                        fill
+                        className="object-contain p-1"
+                        sizes="56px"
+                      />
+                    ) : (
+                      <Illustration color={menuItem?.color ?? "#5C3A1E"} className="h-10 w-auto" />
+                    )}
+                  </div>
+
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-brown-900">
                       {item.name}
@@ -109,7 +132,8 @@ export default function CartModal() {
                     <IconTrash className="h-4 w-4" />
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>

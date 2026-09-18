@@ -68,9 +68,8 @@ export function IconPin(props: React.SVGProps<SVGSVGElement>) {
 export function IconCart(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.6L20.5 8H6" />
-      <circle cx="9.5" cy="20.5" r="1.4" fill="currentColor" stroke="none" />
-      <circle cx="17" cy="20.5" r="1.4" fill="currentColor" stroke="none" />
+      <path d="M6 8h12l1 12.5a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 20.5z" />
+      <path d="M9 8V6a3 3 0 0 1 6 0v2" />
     </svg>
   );
 }

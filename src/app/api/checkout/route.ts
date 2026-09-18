@@ -15,7 +15,8 @@ export async function POST(request: Request) {
     fulfillment?: {
       method?: FulfillmentMethod;
       street?: string;
-      barangayCity?: string;
+      city?: string;
+      barangay?: string;
       landmark?: string;
     };
   };
@@ -45,12 +46,13 @@ export async function POST(request: Request) {
 
   const method: FulfillmentMethod = fulfillment.method === "delivery" ? "delivery" : "pickup";
   const street = fulfillment.street?.trim();
-  const barangayCity = fulfillment.barangayCity?.trim();
+  const city = fulfillment.city?.trim();
+  const barangay = fulfillment.barangay?.trim();
   const landmark = fulfillment.landmark?.trim();
 
-  if (method === "delivery" && (!street || !barangayCity)) {
+  if (method === "delivery" && (!street || !city || !barangay)) {
     return NextResponse.json(
-      { error: "Street address and barangay/city are required for delivery" },
+      { error: "Street, barangay, and city are required for delivery" },
       { status: 400 },
     );
   }
@@ -94,7 +96,7 @@ export async function POST(request: Request) {
   const orderSummary = summaryText.slice(0, 480);
   const deliveryAddress =
     method === "delivery"
-      ? [street, barangayCity, landmark].filter(Boolean).join(", ")
+      ? [street, barangay, city, landmark].filter(Boolean).join(", ")
       : "";
 
   try {

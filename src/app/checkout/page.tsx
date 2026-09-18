@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
+import { NCR_BARANGAYS, NCR_CITIES } from "@/lib/ncr-locations";
 import { saveOrder, saveOrderRemote, type Order } from "@/lib/orders";
 
 const MIN_AMOUNT_PESOS = 20;
@@ -27,11 +28,26 @@ export default function CheckoutPage() {
   const [method, setMethod] = useState<"gcash" | "cash">("gcash");
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
   const [street, setStreet] = useState("");
-  const [barangayCity, setBarangayCity] = useState("");
+  const [city, setCity] = useState("");
+  const [barangay, setBarangay] = useState("");
   const [landmark, setLandmark] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cashConfirmed, setCashConfirmed] = useState(false);
+
+  // Signed-in customers get their name, mobile number, and default address
+  // pre-filled from their account. Name/phone stay locked to the account;
+  // the address stays editable so a different one can be used per order.
+  useEffect(() => {
+    if (!user) return;
+    queueMicrotask(() => {
+      setName(user.user_metadata?.full_name ?? "");
+      setPhone(user.user_metadata?.phone ?? "");
+      setStreet((prev) => prev || (user.user_metadata?.default_street ?? ""));
+      setCity((prev) => prev || (user.user_metadata?.default_city ?? ""));
+      setBarangay((prev) => prev || (user.user_metadata?.default_barangay ?? ""));
+    });
+  }, [user]);
 
   const deliveryFee = fulfillment === "delivery" ? DELIVERY_FEE_PESOS : 0;
   const orderTotal = totalPrice + deliveryFee;
@@ -41,14 +57,16 @@ export default function CheckoutPage() {
     name.trim() &&
     phone.trim() &&
     !loading &&
-    (fulfillment === "pickup" || (street.trim() && barangayCity.trim()));
+    (fulfillment === "pickup" || (street.trim() && city && barangay));
 
   const orderSummary = items
     .map((item) => `${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}`)
     .join("\n");
 
   const deliveryAddress =
-    fulfillment === "delivery" ? [street, barangayCity, landmark].filter(Boolean).join(", ") : undefined;
+    fulfillment === "delivery"
+      ? [street, barangay, city, landmark].filter(Boolean).join(", ")
+      : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +106,7 @@ export default function CheckoutPage() {
           customer: { name, phone, email },
           fulfillment: {
             method: fulfillment,
-            ...(fulfillment === "delivery" ? { street, barangayCity, landmark } : {}),
+            ...(fulfillment === "delivery" ? { street, city, barangay, landmark } : {}),
           },
         }),
       });
@@ -174,7 +192,7 @@ export default function CheckoutPage() {
               {"\n\n"}Name: {name}
               {"\n"}Phone: {phone}
               {fulfillment === "delivery" &&
-                `\nDeliver to: ${[street, barangayCity, landmark].filter(Boolean).join(", ")}`}
+                `\nDeliver to: ${[street, barangay, city, landmark].filter(Boolean).join(", ")}`}
             </pre>
             <button
               type="button"
@@ -288,17 +306,48 @@ export default function CheckoutPage() {
                         className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
                       />
                     </label>
-                    <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="font-semibold text-brown-900/80">Barangay &amp; City</span>
-                      <input
-                        type="text"
-                        required
-                        value={barangayCity}
-                        onChange={(e) => setBarangayCity(e.target.value)}
-                        placeholder="Barangay, City"
-                        className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
-                      />
-                    </label>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-semibold text-brown-900/80">City</span>
+                        <select
+                          required
+                          value={city}
+                          onChange={(e) => {
+                            setCity(e.target.value);
+                            setBarangay("");
+                          }}
+                          className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                        >
+                          <option value="" disabled>
+                            Select city
+                          </option>
+                          {NCR_CITIES.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-semibold text-brown-900/80">Barangay</span>
+                        <select
+                          required
+                          disabled={!city}
+                          value={barangay}
+                          onChange={(e) => setBarangay(e.target.value)}
+                          className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white disabled:opacity-50"
+                        >
+                          <option value="" disabled>
+                            {city ? "Select barangay" : "Select city first"}
+                          </option>
+                          {(NCR_BARANGAYS[city] ?? []).map((b) => (
+                            <option key={b} value={b}>
+                              {b}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                     <label className="flex flex-col gap-1.5 text-sm">
                       <span className="font-semibold text-brown-900/80">
                         Landmark (optional)
@@ -319,16 +368,24 @@ export default function CheckoutPage() {
                 <h2 className="font-heading text-lg font-bold text-brown-900">
                   Contact Details
                 </h2>
+                {user && (
+                  <p className="mt-1 text-xs text-brown-900/60">
+                    From your account — log out to use different details.
+                  </p>
+                )}
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5 text-sm">
                     <span className="font-semibold text-brown-900/80">Name</span>
                     <input
                       type="text"
                       required
+                      readOnly={Boolean(user)}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Juan Dela Cruz"
-                      className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                      className={`rounded-2xl px-4 py-3 text-brown-900 outline-none ${
+                        user ? "bg-brown-100/60 text-brown-900/70" : "bg-brown-100/40 focus:bg-white"
+                      }`}
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-sm">
@@ -336,10 +393,13 @@ export default function CheckoutPage() {
                     <input
                       type="tel"
                       required
+                      readOnly={Boolean(user)}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="09XX XXX XXXX"
-                      className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                      className={`rounded-2xl px-4 py-3 text-brown-900 outline-none ${
+                        user ? "bg-brown-100/60 text-brown-900/70" : "bg-brown-100/40 focus:bg-white"
+                      }`}
                     />
                   </label>
                 </div>

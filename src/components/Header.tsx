@@ -15,6 +15,26 @@ const NAV_LINKS = [
   { href: "/orders", label: "My Orders" },
 ];
 
+// Next.js's <Link> only scrolls to a hash target when the URL's hash
+// actually changes. Re-clicking a nav link for the section you're already
+// "on" (hash unchanged, but the page has been scrolled elsewhere manually)
+// otherwise does nothing — so scroll to it ourselves whenever we're already
+// on the target page.
+function handleHashNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+  const [path, hash] = href.split("#");
+  if (!hash) return;
+
+  const targetPath = path || "/";
+  if (window.location.pathname !== targetPath) return;
+
+  e.preventDefault();
+  const el = document.getElementById(hash);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+    window.history.replaceState(null, "", `${targetPath}#${hash}`);
+  }
+}
+
 function CartButton({ className = "" }: { className?: string }) {
   const { totalItems, isOpen, openCart, closeCart } = useCart();
   return (
@@ -71,12 +91,12 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
   }
 
   return (
-    <div className="flex items-center gap-2 text-sm font-semibold text-brown-800">
-      <span>Hi, {displayName}</span>
+    <div className="group flex items-center gap-2 text-sm font-semibold text-brown-800">
+      <span className="cursor-default">Hi, {displayName}</span>
       <button
         type="button"
         onClick={() => signOut()}
-        className="text-brown-900/60 underline-offset-2 transition-colors hover:text-brown-900 hover:underline"
+        className="hidden text-brown-900/60 underline-offset-2 transition-colors hover:text-brown-900 hover:underline group-hover:inline-block"
       >
         Log Out
       </button>
@@ -103,7 +123,11 @@ export default function Header() {
             scrolled ? "shadow-xl shadow-brown-900/15" : ""
           }`}
         >
-          <Link href="/#home" className="flex items-center gap-3">
+          <Link
+            href="/#home"
+            onClick={(e) => handleHashNavClick(e, "/#home")}
+            className="flex items-center gap-3"
+          >
             <Logo className="h-12 w-12 sm:h-14 sm:w-14" />
             <span className="font-heading text-xl font-bold text-brown-900 sm:text-2xl">
               Mellow Day
@@ -112,17 +136,23 @@ export default function Header() {
 
           <nav className="hidden items-center gap-8 text-base font-semibold text-brown-800 md:flex">
             {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="transition-colors hover:text-brown-900">
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleHashNavClick(e, link.href)}
+                className="transition-colors hover:text-brown-900"
+              >
                 {link.label}
               </Link>
             ))}
-            <AccountLinks />
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-5 md:flex">
+            <AccountLinks />
             <CartButton />
             <Link
               href="/#menu"
+              onClick={(e) => handleHashNavClick(e, "/#menu")}
               className="rounded-full bg-brown-900 px-6 py-3.5 text-base font-semibold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
             >
               Order Now
@@ -152,7 +182,10 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  handleHashNavClick(e, link.href);
+                  setOpen(false);
+                }}
                 className="rounded-lg px-2 py-2.5 transition-colors hover:bg-brown-100/60"
               >
                 {link.label}
@@ -161,7 +194,10 @@ export default function Header() {
             <AccountLinks mobile onNavigate={() => setOpen(false)} />
             <Link
               href="/#menu"
-              onClick={() => setOpen(false)}
+              onClick={(e) => {
+                handleHashNavClick(e, "/#menu");
+                setOpen(false);
+              }}
               className="mt-2 rounded-full bg-brown-900 px-5 py-2.5 text-center text-cream"
             >
               Order Now

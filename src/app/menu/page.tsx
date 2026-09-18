@@ -2,6 +2,7 @@ import CartModal from "@/components/CartModal";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
+import SectionWave from "@/components/SectionWave";
 
 export default function MenuPage() {
   return (
@@ -10,6 +11,7 @@ export default function MenuPage() {
       <div className="flex-1">
         <Menu />
       </div>
+      <SectionWave background="bg-green" fill="fill-[#F9F6EF]" />
       <Footer className="bg-[#F9F6EF]" />
       <CartModal />
     </div>

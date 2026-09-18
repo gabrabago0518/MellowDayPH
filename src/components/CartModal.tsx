@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Logo from "./Logo";
 import { useCart } from "@/lib/CartContext";
 import { formatPrice } from "@/lib/menu-data";
-import { IconClose, IconMinus, IconPlus, IconTrash } from "./icons";
+import { IconArrowRight, IconClose, IconMinus, IconPlus, IconTrash } from "./icons";
 
-export default function CartDrawer() {
+export default function CartModal() {
   const {
     items,
     updateQuantity,
@@ -41,48 +42,59 @@ export default function CartDrawer() {
   };
 
   return (
-    <>
+    <div
+      aria-hidden={!isOpen}
+      onClick={close}
+      className={`fixed inset-0 z-[60] flex items-center justify-center bg-brown-900/50 p-4 backdrop-blur-sm transition-opacity duration-300 ${
+        isOpen ? "opacity-100" : "pointer-events-none opacity-0"
+      }`}
+    >
       <div
-        aria-hidden={!isOpen}
-        onClick={close}
-        className={`fixed inset-0 z-[60] bg-brown-900/40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-      />
-
-      <aside
         role="dialog"
-        aria-label="Shopping cart"
-        aria-hidden={!isOpen}
-        className={`fixed right-0 top-0 z-[70] flex h-full w-full max-w-sm flex-col bg-cream shadow-2xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        aria-label="Your Mellow Bag"
+        onClick={(e) => e.stopPropagation()}
+        className={`flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-cream shadow-2xl transition-all duration-300 ${
+          isOpen ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-brown-100 px-5 py-4">
-          <h2 className="font-heading text-lg font-bold text-brown-900">
-            Your Cart {totalItems > 0 && `(${totalItems})`}
-          </h2>
+        <div className="flex items-center justify-between gap-4 border-b border-brown-100 px-6 py-5">
+          <div className="flex items-center gap-3">
+            <Logo className="h-11 w-11" />
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-heading text-lg font-bold text-brown-900">
+                  Your Mellow Bag
+                </h2>
+                {totalItems > 0 && (
+                  <span className="rounded-full bg-green/40 px-2.5 py-0.5 text-xs font-bold text-brown-900">
+                    {totalItems} {totalItems === 1 ? "treat" : "treats"}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-brown-900/60">Freshly handcrafted to order</p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={close}
-            aria-label="Close cart"
-            className="rounded-full p-1.5 text-brown-900 hover:bg-brown-100/60"
+            aria-label="Close bag"
+            className="rounded-full p-1.5 text-brown-900 transition-transform hover:scale-105 hover:bg-brown-100/60"
           >
             <IconClose className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-5">
           {items.length === 0 ? (
             <p className="mt-10 text-center text-sm text-brown-900/60">
-              Your cart is empty. Add a drink from the menu to get started.
+              Your bag is empty. Add a drink from the menu to get started.
             </p>
           ) : checkedOut ? (
             <div>
               <p className="text-sm font-semibold text-brown-900">
                 Thanks! Here&apos;s your order summary:
               </p>
-              <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-green/20 p-4 font-body text-sm text-brown-900">
+              <pre className="mt-3 whitespace-pre-wrap rounded-2xl bg-green/20 p-4 font-body text-sm text-brown-900">
                 {orderSummary}
                 {"\n"}Total: {formatPrice(totalPrice)}
               </pre>
@@ -111,9 +123,12 @@ export default function CartDrawer() {
               </button>
             </div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               {items.map((item) => (
-                <li key={item.id} className="flex items-center gap-3">
+                <li
+                  key={item.id}
+                  className="flex items-center gap-3 rounded-2xl bg-white/70 p-3 shadow-sm"
+                >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-brown-900">
                       {item.name}
@@ -151,7 +166,7 @@ export default function CartDrawer() {
 
                   <button
                     type="button"
-                    aria-label={`Remove ${item.name} from cart`}
+                    aria-label={`Remove ${item.name} from bag`}
                     onClick={() => removeItem(item.id)}
                     className="shrink-0 text-brown-900/50 hover:text-brown-900"
                   >
@@ -164,28 +179,28 @@ export default function CartDrawer() {
         </div>
 
         {items.length > 0 && !checkedOut && (
-          <div className="border-t border-brown-100 px-5 py-4">
-            <div className="flex items-center justify-between text-sm font-semibold text-brown-900">
-              <span>Total</span>
-              <span>{formatPrice(totalPrice)}</span>
-            </div>
+          <div className="border-t border-brown-100 px-6 py-5">
             <button
               type="button"
               onClick={() => setCheckedOut(true)}
-              className="mt-3 w-full rounded-full bg-brown-900 px-5 py-3 text-sm font-bold text-cream hover:bg-brown-800"
+              className="flex w-full items-center justify-between rounded-full bg-brown-900 px-6 py-4 text-sm font-bold text-cream shadow-lg shadow-brown-900/20 transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
             >
-              Checkout
+              <span>Proceed to Checkout</span>
+              <span className="flex items-center gap-1.5">
+                {formatPrice(totalPrice)}
+                <IconArrowRight className="h-4 w-4" />
+              </span>
             </button>
             <button
               type="button"
               onClick={clearCart}
               className="mt-2 w-full text-center text-xs font-semibold text-brown-900/60 hover:text-brown-900"
             >
-              Clear Cart
+              Clear Bag
             </button>
           </div>
         )}
-      </aside>
-    </>
+      </div>
+    </div>
   );
 }

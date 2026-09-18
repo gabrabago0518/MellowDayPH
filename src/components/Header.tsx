@@ -18,7 +18,7 @@ function CartButton({ className = "" }: { className?: string }) {
     <button
       type="button"
       onClick={openCart}
-      aria-label={`Open cart${totalItems > 0 ? ` (${totalItems} items)` : ""}`}
+      aria-label={`Open bag${totalItems > 0 ? ` (${totalItems} items)` : ""}`}
       className={`relative rounded-full p-2 text-brown-900 hover:bg-brown-100/60 ${className}`}
     >
       <IconCart className="h-6 w-6" />

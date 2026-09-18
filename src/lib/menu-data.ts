@@ -32,6 +32,7 @@ export type MenuItem = {
   category: MenuCategory;
   color: string;
   image?: string;
+  description?: string;
 };
 
 export const MENU_ITEMS: MenuItem[] = [

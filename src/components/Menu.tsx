@@ -56,6 +56,7 @@ export default function Menu() {
               price={item.price}
               color={item.color}
               image={item.image}
+              description={item.description}
               isFood={foodCategory}
               delay={i * 60}
             />

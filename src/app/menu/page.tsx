@@ -10,7 +10,7 @@ export default function MenuPage() {
       <div className="flex-1">
         <Menu />
       </div>
-      <Footer />
+      <Footer className="bg-[#F9F6EF]" />
       <CartModal />
     </div>
   );

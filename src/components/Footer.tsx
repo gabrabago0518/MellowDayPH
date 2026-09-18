@@ -9,9 +9,9 @@ const NAV_LINKS = [
   { href: "/menu", label: "Order" },
 ];
 
-export default function Footer() {
+export default function Footer({ className = "bg-green" }: { className?: string }) {
   return (
-    <footer className="mt-auto bg-green px-6 py-10 sm:px-10 md:py-14">
+    <footer className={`mt-auto px-6 py-10 sm:px-10 md:py-14 ${className}`}>
       <div className="mx-auto max-w-7xl">
         <div className="flex items-start justify-between gap-6">
           <div className="flex flex-col items-center gap-2">

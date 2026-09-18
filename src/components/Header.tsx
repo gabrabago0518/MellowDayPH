@@ -56,6 +56,12 @@ function CartButton({ className = "" }: { className?: string }) {
 
 function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const { user, signOut } = useAuth();
+  const { clearCart } = useCart();
+
+  const handleLogout = () => {
+    signOut();
+    clearCart();
+  };
 
   if (!user) {
     return (
@@ -80,7 +86,7 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
       <button
         type="button"
         onClick={() => {
-          signOut();
+          handleLogout();
           onNavigate?.();
         }}
         className="rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-brown-100/60"
@@ -98,7 +104,7 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
         <div className="whitespace-nowrap rounded-2xl bg-cream p-1.5 shadow-lg shadow-brown-900/15">
           <button
             type="button"
-            onClick={() => signOut()}
+            onClick={handleLogout}
             className="w-full rounded-xl px-4 py-2 text-left text-sm font-semibold text-brown-900 transition-colors hover:bg-brown-100/60"
           >
             Log Out

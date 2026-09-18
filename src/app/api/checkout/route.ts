@@ -3,13 +3,21 @@ import { MENU_ITEMS } from "@/lib/menu-data";
 import { createGCashCheckout } from "@/lib/paymongo";
 
 const MIN_AMOUNT_PESOS = 20;
+export const DELIVERY_FEE_PESOS = 49;
 
 type CheckoutRequestItem = { id: string; quantity: number };
+type FulfillmentMethod = "pickup" | "delivery";
 
 export async function POST(request: Request) {
   let body: {
     items?: CheckoutRequestItem[];
     customer?: { name?: string; phone?: string; email?: string };
+    fulfillment?: {
+      method?: FulfillmentMethod;
+      street?: string;
+      barangayCity?: string;
+      landmark?: string;
+    };
   };
 
   try {
@@ -20,6 +28,7 @@ export async function POST(request: Request) {
 
   const items = body.items ?? [];
   const customer = body.customer ?? {};
+  const fulfillment = body.fulfillment ?? {};
 
   if (items.length === 0) {
     return NextResponse.json({ error: "Your bag is empty" }, { status: 400 });
@@ -30,6 +39,18 @@ export async function POST(request: Request) {
   if (!name || !phone) {
     return NextResponse.json(
       { error: "Name and mobile number are required" },
+      { status: 400 },
+    );
+  }
+
+  const method: FulfillmentMethod = fulfillment.method === "delivery" ? "delivery" : "pickup";
+  const street = fulfillment.street?.trim();
+  const barangayCity = fulfillment.barangayCity?.trim();
+  const landmark = fulfillment.landmark?.trim();
+
+  if (method === "delivery" && (!street || !barangayCity)) {
+    return NextResponse.json(
+      { error: "Street address and barangay/city are required for delivery" },
       { status: 400 },
     );
   }
@@ -53,6 +74,11 @@ export async function POST(request: Request) {
     summaryLines.push(`${quantity}x ${menuItem.name}`);
   }
 
+  // Flat delivery fee is added server-side — never trust a client-sent fee.
+  if (method === "delivery") {
+    totalPesos += DELIVERY_FEE_PESOS;
+  }
+
   if (totalPesos < MIN_AMOUNT_PESOS) {
     return NextResponse.json(
       { error: `Minimum order for GCash payment is ₱${MIN_AMOUNT_PESOS}` },
@@ -61,7 +87,15 @@ export async function POST(request: Request) {
   }
 
   const origin = new URL(request.url).origin;
-  const orderSummary = summaryLines.join(", ").slice(0, 480);
+  const summaryText =
+    method === "delivery"
+      ? `${summaryLines.join(", ")} + delivery (₱${DELIVERY_FEE_PESOS})`
+      : summaryLines.join(", ");
+  const orderSummary = summaryText.slice(0, 480);
+  const deliveryAddress =
+    method === "delivery"
+      ? [street, barangayCity, landmark].filter(Boolean).join(", ")
+      : "";
 
   try {
     const checkout = await createGCashCheckout({
@@ -71,6 +105,8 @@ export async function POST(request: Request) {
         order_summary: orderSummary,
         customer_name: name,
         customer_phone: phone,
+        fulfillment_method: method,
+        ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
       },
       billing: { name, phone, email: customer.email?.trim() },
       returnUrl: `${origin}/checkout/return`,

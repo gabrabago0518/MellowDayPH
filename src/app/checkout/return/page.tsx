@@ -15,6 +15,7 @@ function ReturnContent() {
   const { clearCart } = useCart();
   const [status, setStatus] = useState<Status>("checking");
   const [orderSummary, setOrderSummary] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const [amount, setAmount] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -53,6 +54,7 @@ function ReturnContent() {
       .then((data) => {
         setAmount(data.amount / 100);
         setOrderSummary(data.metadata?.order_summary ?? "");
+        setDeliveryAddress(data.metadata?.delivery_address ?? "");
 
         if (data.status === "succeeded") {
           setStatus("succeeded");
@@ -99,6 +101,7 @@ function ReturnContent() {
                 <pre className="mt-5 whitespace-pre-wrap rounded-2xl bg-green/20 p-4 text-left font-body text-sm text-brown-900">
                   {orderSummary}
                   {amount != null && `\nTotal: ${formatPrice(amount)}`}
+                  {deliveryAddress && `\nDeliver to: ${deliveryAddress}`}
                 </pre>
               )}
               <Link

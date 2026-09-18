@@ -10,6 +10,7 @@ import { useCart } from "@/lib/CartContext";
 import { formatPrice } from "@/lib/menu-data";
 
 const MIN_AMOUNT_PESOS = 20;
+const DELIVERY_FEE_PESOS = 49;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -18,11 +19,23 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [method, setMethod] = useState<"gcash" | "cash">("gcash");
+  const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
+  const [street, setStreet] = useState("");
+  const [barangayCity, setBarangayCity] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cashConfirmed, setCashConfirmed] = useState(false);
 
-  const canSubmit = items.length > 0 && name.trim() && phone.trim() && !loading;
+  const deliveryFee = fulfillment === "delivery" ? DELIVERY_FEE_PESOS : 0;
+  const orderTotal = totalPrice + deliveryFee;
+
+  const canSubmit =
+    items.length > 0 &&
+    name.trim() &&
+    phone.trim() &&
+    !loading &&
+    (fulfillment === "pickup" || (street.trim() && barangayCity.trim()));
 
   const orderSummary = items
     .map((item) => `${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}`)
@@ -45,6 +58,10 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((item) => ({ id: item.id, quantity: item.quantity })),
           customer: { name, phone, email },
+          fulfillment: {
+            method: fulfillment,
+            ...(fulfillment === "delivery" ? { street, barangayCity, landmark } : {}),
+          },
         }),
       });
 
@@ -104,9 +121,12 @@ export default function CheckoutPage() {
             </p>
             <pre className="mt-5 whitespace-pre-wrap rounded-2xl bg-green/20 p-4 text-left font-body text-sm text-brown-900">
               {orderSummary}
-              {"\n"}Total: {formatPrice(totalPrice)}
+              {fulfillment === "delivery" && `\nDelivery fee: ${formatPrice(deliveryFee)}`}
+              {"\n"}Total: {formatPrice(orderTotal)}
               {"\n\n"}Name: {name}
               {"\n"}Phone: {phone}
+              {fulfillment === "delivery" &&
+                `\nDeliver to: ${[street, barangayCity, landmark].filter(Boolean).join(", ")}`}
             </pre>
             <button
               type="button"
@@ -136,7 +156,9 @@ export default function CheckoutPage() {
             Checkout
           </h1>
           <p className="mt-2 text-sm text-brown-900/70">
-            Pickup only — we&apos;ll have it ready in about 15–20 minutes.
+            {fulfillment === "pickup"
+              ? "Pickup only — we'll have it ready in about 15–20 minutes."
+              : "Delivery — usually arrives within 45–60 minutes, depending on your location."}
           </p>
 
           <form
@@ -146,7 +168,102 @@ export default function CheckoutPage() {
             <div className="flex flex-col gap-6 lg:col-span-7">
               <section className="rounded-3xl bg-white/70 p-6 shadow-sm sm:p-7">
                 <h2 className="font-heading text-lg font-bold text-brown-900">
-                  Contact &amp; Pickup Details
+                  Order Method
+                </h2>
+                <div className="mt-4 flex flex-col gap-3">
+                  <label
+                    className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-colors ${
+                      fulfillment === "pickup" ? "bg-green/25" : "bg-brown-100/30 hover:bg-brown-100/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <input
+                        type="radio"
+                        name="fulfillment"
+                        value="pickup"
+                        checked={fulfillment === "pickup"}
+                        onChange={() => setFulfillment("pickup")}
+                        className="h-4 w-4 accent-brown-900"
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-brown-900">
+                          Pickup
+                        </span>
+                        <span className="text-xs text-brown-900/60">
+                          Ready in about 15–20 minutes
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                  <label
+                    className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-colors ${
+                      fulfillment === "delivery" ? "bg-green/25" : "bg-brown-100/30 hover:bg-brown-100/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <input
+                        type="radio"
+                        name="fulfillment"
+                        value="delivery"
+                        checked={fulfillment === "delivery"}
+                        onChange={() => setFulfillment("delivery")}
+                        className="h-4 w-4 accent-brown-900"
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-brown-900">
+                          Delivery — {formatPrice(DELIVERY_FEE_PESOS)}
+                        </span>
+                        <span className="text-xs text-brown-900/60">
+                          Estimated arrival in 45–60 minutes
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {fulfillment === "delivery" && (
+                  <div className="mt-4 flex flex-col gap-4 border-t border-brown-900/10 pt-4">
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-semibold text-brown-900/80">Street Address</span>
+                      <input
+                        type="text"
+                        required
+                        value={street}
+                        onChange={(e) => setStreet(e.target.value)}
+                        placeholder="House/Unit No., Street"
+                        className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-semibold text-brown-900/80">Barangay &amp; City</span>
+                      <input
+                        type="text"
+                        required
+                        value={barangayCity}
+                        onChange={(e) => setBarangayCity(e.target.value)}
+                        placeholder="Barangay, City"
+                        className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-semibold text-brown-900/80">
+                        Landmark (optional)
+                      </span>
+                      <input
+                        type="text"
+                        value={landmark}
+                        onChange={(e) => setLandmark(e.target.value)}
+                        placeholder="e.g. Near the corner store, gate color"
+                        className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                      />
+                    </label>
+                  </div>
+                )}
+              </section>
+
+              <section className="rounded-3xl bg-white/70 p-6 shadow-sm sm:p-7">
+                <h2 className="font-heading text-lg font-bold text-brown-900">
+                  Contact Details
                 </h2>
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5 text-sm">
@@ -263,12 +380,18 @@ export default function CheckoutPage() {
                     </li>
                   ))}
                 </ul>
+                {fulfillment === "delivery" && (
+                  <div className="mt-4 flex items-center justify-between border-t border-brown-900/10 pt-4 text-sm text-brown-900">
+                    <span>Delivery fee</span>
+                    <span className="font-semibold">{formatPrice(deliveryFee)}</span>
+                  </div>
+                )}
                 <div className="mt-4 flex items-center justify-between border-t border-brown-900/10 pt-4 text-base font-bold text-brown-900">
                   <span>Total</span>
-                  <span>{formatPrice(totalPrice)}</span>
+                  <span>{formatPrice(orderTotal)}</span>
                 </div>
 
-                {totalPrice < MIN_AMOUNT_PESOS && method === "gcash" && (
+                {orderTotal < MIN_AMOUNT_PESOS && method === "gcash" && (
                   <p className="mt-3 text-xs text-red-600">
                     Minimum order for GCash payment is {formatPrice(MIN_AMOUNT_PESOS)}.
                   </p>
@@ -281,14 +404,14 @@ export default function CheckoutPage() {
 
                 <button
                   type="submit"
-                  disabled={!canSubmit || (method === "gcash" && totalPrice < MIN_AMOUNT_PESOS)}
+                  disabled={!canSubmit || (method === "gcash" && orderTotal < MIN_AMOUNT_PESOS)}
                   className="mt-5 w-full rounded-full bg-brown-900 px-6 py-4 text-sm font-bold text-cream shadow-lg shadow-brown-900/20 transition-transform hover:-translate-y-0.5 hover:bg-brown-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   {loading
                     ? "Redirecting to GCash…"
                     : method === "gcash"
-                      ? `Pay with GCash — ${formatPrice(totalPrice)}`
-                      : `Place Order — ${formatPrice(totalPrice)}`}
+                      ? `Pay with GCash — ${formatPrice(orderTotal)}`
+                      : `Place Order — ${formatPrice(orderTotal)}`}
                 </button>
               </div>
             </div>

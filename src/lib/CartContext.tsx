@@ -28,6 +28,7 @@ type CartContextValue = {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  toast: string | null;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -37,6 +38,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 2200);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -69,6 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { id, name, price, quantity: 1 }];
     });
+    setToast(`${name} added to your bag`);
   }, []);
 
   const removeItem = useCallback((id: string) => {
@@ -110,6 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       isOpen,
       openCart,
       closeCart,
+      toast,
     }),
     [
       items,
@@ -122,6 +132,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clearCart,
       openCart,
       closeCart,
+      toast,
     ],
   );
 

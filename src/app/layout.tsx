@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Paytone_One, Radio_Canada_Big } from "next/font/google";
+import CartToast from "@/components/CartToast";
 import { CartProvider } from "@/lib/CartContext";
 import "./globals.css";
 
@@ -45,7 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             __html: "document.documentElement.classList.add('js')",
           }}
         />
-        <CartProvider>{children}</CartProvider>
+        <CartProvider>
+          {children}
+          <CartToast />
+        </CartProvider>
       </body>
     </html>
   );

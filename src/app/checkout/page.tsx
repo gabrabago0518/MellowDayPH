@@ -1,0 +1,303 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import CartModal from "@/components/CartModal";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { useCart } from "@/lib/CartContext";
+import { formatPrice } from "@/lib/menu-data";
+
+const MIN_AMOUNT_PESOS = 20;
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { items, totalPrice, clearCart } = useCart();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [method, setMethod] = useState<"gcash" | "cash">("gcash");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [cashConfirmed, setCashConfirmed] = useState(false);
+
+  const canSubmit = items.length > 0 && name.trim() && phone.trim() && !loading;
+
+  const orderSummary = items
+    .map((item) => `${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}`)
+    .join("\n");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (method === "cash") {
+      setCashConfirmed(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({ id: item.id, quantity: item.quantity })),
+          customer: { name, phone, email },
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong. Please try again.");
+      }
+
+      sessionStorage.setItem(
+        "mellowday-payment",
+        JSON.stringify({ id: data.paymentIntentId, clientKey: data.clientKey }),
+      );
+      window.location.href = data.checkoutUrl;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  if (items.length === 0 && !cashConfirmed) {
+    return (
+      <div className="flex min-h-screen flex-col bg-cream text-brown-900">
+        <Header />
+        <main className="flex flex-1 items-center justify-center px-6 py-32 text-center">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-brown-900">
+              Your bag is empty
+            </h1>
+            <p className="mt-2 text-sm text-brown-900/70">
+              Add something from the menu before checking out.
+            </p>
+            <Link
+              href="/#menu"
+              className="mt-6 inline-block rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
+            >
+              Browse the Menu
+            </Link>
+          </div>
+        </main>
+        <Footer />
+        <CartModal />
+      </div>
+    );
+  }
+
+  if (cashConfirmed) {
+    return (
+      <div className="flex min-h-screen flex-col bg-cream text-brown-900">
+        <Header />
+        <main className="flex flex-1 items-center justify-center px-6 py-32">
+          <div className="w-full max-w-md rounded-3xl bg-white/70 p-8 text-center shadow-sm">
+            <h1 className="font-heading text-2xl font-bold text-brown-900">
+              Order placed! 🎉
+            </h1>
+            <p className="mt-2 text-sm text-brown-900/70">
+              Show this summary and pay cash when you pick up.
+            </p>
+            <pre className="mt-5 whitespace-pre-wrap rounded-2xl bg-green/20 p-4 text-left font-body text-sm text-brown-900">
+              {orderSummary}
+              {"\n"}Total: {formatPrice(totalPrice)}
+              {"\n\n"}Name: {name}
+              {"\n"}Phone: {phone}
+            </pre>
+            <button
+              type="button"
+              onClick={() => {
+                clearCart();
+                router.push("/");
+              }}
+              className="mt-6 w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
+            >
+              Back to Home
+            </button>
+          </div>
+        </main>
+        <Footer />
+        <CartModal />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-cream text-brown-900">
+      <Header />
+
+      <main className="flex-1 px-6 py-28 md:py-32">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="font-heading text-3xl font-bold text-brown-900 sm:text-4xl">
+            Checkout
+          </h1>
+          <p className="mt-2 text-sm text-brown-900/70">
+            Pickup only — we&apos;ll have it ready in about 15–20 minutes.
+          </p>
+
+          <form
+            onSubmit={handleSubmit}
+            className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12"
+          >
+            <div className="flex flex-col gap-6 lg:col-span-7">
+              <section className="rounded-3xl bg-white/70 p-6 shadow-sm sm:p-7">
+                <h2 className="font-heading text-lg font-bold text-brown-900">
+                  Contact &amp; Pickup Details
+                </h2>
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-sm">
+                    <span className="font-semibold text-brown-900/80">Name</span>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Juan Dela Cruz"
+                      className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-sm">
+                    <span className="font-semibold text-brown-900/80">Mobile Number</span>
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="09XX XXX XXXX"
+                      className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                    />
+                  </label>
+                </div>
+                <label className="mt-4 flex flex-col gap-1.5 text-sm">
+                  <span className="font-semibold text-brown-900/80">
+                    Email (optional, for receipt)
+                  </span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@email.com"
+                    className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                  />
+                </label>
+              </section>
+
+              <section className="rounded-3xl bg-white/70 p-6 shadow-sm sm:p-7">
+                <h2 className="font-heading text-lg font-bold text-brown-900">
+                  Payment Method
+                </h2>
+                <div className="mt-4 flex flex-col gap-3">
+                  <label
+                    className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-colors ${
+                      method === "gcash" ? "bg-green/25" : "bg-brown-100/30 hover:bg-brown-100/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <input
+                        type="radio"
+                        name="method"
+                        value="gcash"
+                        checked={method === "gcash"}
+                        onChange={() => setMethod("gcash")}
+                        className="h-4 w-4 accent-brown-900"
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-brown-900">
+                          GCash
+                        </span>
+                        <span className="text-xs text-brown-900/60">
+                          Pay online now — you&apos;ll be redirected to GCash to confirm
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                  <label
+                    className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-colors ${
+                      method === "cash" ? "bg-green/25" : "bg-brown-100/30 hover:bg-brown-100/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <input
+                        type="radio"
+                        name="method"
+                        value="cash"
+                        checked={method === "cash"}
+                        onChange={() => setMethod("cash")}
+                        className="h-4 w-4 accent-brown-900"
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-brown-900">
+                          Cash on Pickup
+                        </span>
+                        <span className="text-xs text-brown-900/60">
+                          Pay in person when you pick up your order
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </section>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="rounded-3xl bg-white/70 p-6 shadow-sm sm:p-7">
+                <h2 className="font-heading text-lg font-bold text-brown-900">
+                  Order Summary
+                </h2>
+                <ul className="mt-4 space-y-2">
+                  {items.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between text-sm text-brown-900"
+                    >
+                      <span className="truncate pr-2">
+                        {item.quantity}x {item.name}
+                      </span>
+                      <span className="shrink-0 font-semibold">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 flex items-center justify-between border-t border-brown-900/10 pt-4 text-base font-bold text-brown-900">
+                  <span>Total</span>
+                  <span>{formatPrice(totalPrice)}</span>
+                </div>
+
+                {totalPrice < MIN_AMOUNT_PESOS && method === "gcash" && (
+                  <p className="mt-3 text-xs text-red-600">
+                    Minimum order for GCash payment is {formatPrice(MIN_AMOUNT_PESOS)}.
+                  </p>
+                )}
+                {error && (
+                  <p className="mt-3 rounded-xl bg-red-100 px-3 py-2 text-xs text-red-700">
+                    {error}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={!canSubmit || (method === "gcash" && totalPrice < MIN_AMOUNT_PESOS)}
+                  className="mt-5 w-full rounded-full bg-brown-900 px-6 py-4 text-sm font-bold text-cream shadow-lg shadow-brown-900/20 transition-transform hover:-translate-y-0.5 hover:bg-brown-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                >
+                  {loading
+                    ? "Redirecting to GCash…"
+                    : method === "gcash"
+                      ? `Pay with GCash — ${formatPrice(totalPrice)}`
+                      : `Place Order — ${formatPrice(totalPrice)}`}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <Footer />
+      <CartModal />
+    </div>
+  );
+}

@@ -1,50 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import Logo from "./Logo";
 import { useCart } from "@/lib/CartContext";
 import { formatPrice } from "@/lib/menu-data";
 import { IconArrowRight, IconClose, IconMinus, IconPlus, IconTrash } from "./icons";
 
 export default function CartModal() {
-  const {
-    items,
-    updateQuantity,
-    removeItem,
-    clearCart,
-    totalItems,
-    totalPrice,
-    isOpen,
-    closeCart,
-  } = useCart();
-  const [checkedOut, setCheckedOut] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const close = () => {
-    closeCart();
-    setCheckedOut(false);
-    setCopied(false);
-  };
-
-  const orderSummary = items
-    .map((item) => `${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}`)
-    .join("\n");
-
-  const copyOrder = async () => {
-    try {
-      await navigator.clipboard.writeText(
-        `Mellow Day PH order:\n${orderSummary}\nTotal: ${formatPrice(totalPrice)}`,
-      );
-      setCopied(true);
-    } catch {
-      // clipboard unavailable — the summary is still shown on screen
-    }
-  };
+  const { items, updateQuantity, removeItem, clearCart, totalItems, totalPrice, isOpen, closeCart } =
+    useCart();
 
   return (
     <div
       aria-hidden={!isOpen}
-      onClick={close}
+      onClick={closeCart}
       className={`fixed inset-0 z-[60] flex items-center justify-center bg-brown-900/50 p-4 backdrop-blur-sm transition-opacity duration-300 ${
         isOpen ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
@@ -76,7 +45,7 @@ export default function CartModal() {
           </div>
           <button
             type="button"
-            onClick={close}
+            onClick={closeCart}
             aria-label="Close bag"
             className="rounded-full p-1.5 text-brown-900 transition-transform hover:scale-105 hover:bg-brown-100/60"
           >
@@ -89,39 +58,6 @@ export default function CartModal() {
             <p className="mt-10 text-center text-sm text-brown-900/60">
               Your bag is empty. Add a drink from the menu to get started.
             </p>
-          ) : checkedOut ? (
-            <div>
-              <p className="text-sm font-semibold text-brown-900">
-                Thanks! Here&apos;s your order summary:
-              </p>
-              <pre className="mt-3 whitespace-pre-wrap rounded-2xl bg-green/20 p-4 font-body text-sm text-brown-900">
-                {orderSummary}
-                {"\n"}Total: {formatPrice(totalPrice)}
-              </pre>
-              <p className="mt-3 text-xs text-brown-900/70">
-                Online payment isn&apos;t set up yet — copy this order and
-                send it to us on Facebook/Instagram, or read it out when you
-                drop by, to complete your purchase.
-              </p>
-              <button
-                type="button"
-                onClick={copyOrder}
-                className="mt-4 w-full rounded-full bg-brown-900 px-5 py-3 text-sm font-bold text-cream hover:bg-brown-800"
-              >
-                {copied ? "Copied!" : "Copy Order Summary"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  clearCart();
-                  setCheckedOut(false);
-                  setCopied(false);
-                }}
-                className="mt-2 w-full rounded-full border-2 border-brown-900/30 px-5 py-3 text-sm font-bold text-brown-900 hover:bg-brown-100/60"
-              >
-                Start a New Order
-              </button>
-            </div>
           ) : (
             <ul className="space-y-3">
               {items.map((item) => (
@@ -178,11 +114,11 @@ export default function CartModal() {
           )}
         </div>
 
-        {items.length > 0 && !checkedOut && (
+        {items.length > 0 && (
           <div className="border-t border-brown-100 px-6 py-5">
-            <button
-              type="button"
-              onClick={() => setCheckedOut(true)}
+            <Link
+              href="/checkout"
+              onClick={closeCart}
               className="flex w-full items-center justify-between rounded-full bg-brown-900 px-6 py-4 text-sm font-bold text-cream shadow-lg shadow-brown-900/20 transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
             >
               <span>Proceed to Checkout</span>
@@ -190,7 +126,7 @@ export default function CartModal() {
                 {formatPrice(totalPrice)}
                 <IconArrowRight className="h-4 w-4" />
               </span>
-            </button>
+            </Link>
             <button
               type="button"
               onClick={clearCart}

@@ -109,13 +109,13 @@ export default function Menu() {
         </Reveal>
 
         <Reveal delay={100}>
-          <div className="mt-8 flex gap-3 overflow-x-auto pb-2 md:flex-wrap">
+          <div className="mt-8 flex gap-2 overflow-x-auto pb-3 md:flex-wrap">
             {MENU_CATEGORIES.map((category) => (
               <button
                 key={category}
                 type="button"
                 onClick={() => setActive(category)}
-                className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
+                className={`shrink-0 px-5 pb-4 pt-3 text-sm font-bold transition-colors [clip-path:polygon(0_0,100%_0,100%_100%,50%_78%,0_100%)] ${
                   active === category
                     ? "bg-brown-900 text-cream"
                     : "bg-cream/70 text-brown-900 hover:bg-cream"

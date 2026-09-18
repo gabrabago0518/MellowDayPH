@@ -9,15 +9,17 @@ import CupIllustration from "@/components/CupIllustration";
 import FoodIllustration from "@/components/FoodIllustration";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
-import { saveOrder } from "@/lib/orders";
+import { saveOrder, saveOrderRemote, type Order } from "@/lib/orders";
 
 const MIN_AMOUNT_PESOS = 20;
 const DELIVERY_FEE_PESOS = 49;
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { items, totalPrice, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -53,7 +55,7 @@ export default function CheckoutPage() {
     setError(null);
 
     if (method === "cash") {
-      saveOrder({
+      const order: Order = {
         id: `cash-${Date.now()}`,
         createdAt: new Date().toISOString(),
         method: "cash",
@@ -69,7 +71,9 @@ export default function CheckoutPage() {
         deliveryAddress,
         name,
         phone,
-      });
+      };
+      saveOrder(order);
+      if (user) saveOrderRemote(order, user.id);
       setCashConfirmed(true);
       return;
     }
@@ -94,7 +98,7 @@ export default function CheckoutPage() {
         throw new Error(data.error || "Something went wrong. Please try again.");
       }
 
-      saveOrder({
+      const order: Order = {
         id: data.paymentIntentId,
         createdAt: new Date().toISOString(),
         method: "gcash",
@@ -110,7 +114,9 @@ export default function CheckoutPage() {
         deliveryAddress,
         name,
         phone,
-      });
+      };
+      saveOrder(order);
+      if (user) saveOrderRemote(order, user.id);
 
       sessionStorage.setItem(
         "mellowday-payment",

@@ -1,0 +1,50 @@
+<!--
+  Paste this into: Supabase Dashboard -> Authentication -> Emails -> Confirm signup
+
+  Supabase's email templates only understand its own {{ .Variable }} tags
+  (documented at https://supabase.com/docs/guides/auth/auth-email-templates) —
+  keep those as-is. Everything else here is plain, inlined HTML/CSS since
+  most email clients ignore <style> blocks and external stylesheets.
+-->
+<div style="background-color:#fdf7ec;padding:32px 16px;font-family:Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;">
+    <tr>
+      <td style="text-align:center;padding-bottom:24px;">
+        <img
+          src="https://mellowdayph.vercel.app/logo.png"
+          alt="Mellow Day PH"
+          width="56"
+          height="56"
+          style="border-radius:9999px;"
+        />
+      </td>
+    </tr>
+    <tr>
+      <td style="background-color:#ffffff;border-radius:24px;padding:32px;text-align:center;">
+        <h1 style="margin:0 0 12px;color:#3b2314;font-size:22px;">
+          Confirm your email
+        </h1>
+        <p style="margin:0 0 24px;color:#3b2314;opacity:0.75;font-size:14px;line-height:1.6;">
+          Thanks for signing up for Mellow Day PH! Click the button below to
+          confirm <strong>{{ .Email }}</strong> and start tracking your orders.
+        </p>
+        <a
+          href="{{ .ConfirmationURL }}"
+          style="display:inline-block;background-color:#3b2314;color:#fdf7ec;text-decoration:none;font-weight:bold;font-size:14px;padding:14px 28px;border-radius:9999px;"
+        >
+          Confirm Email
+        </a>
+        <p style="margin:24px 0 0;color:#3b2314;opacity:0.5;font-size:12px;line-height:1.6;">
+          If the button doesn&rsquo;t work, copy and paste this link into your browser:
+          <br />
+          <a href="{{ .ConfirmationURL }}" style="color:#3b2314;word-break:break-all;">{{ .ConfirmationURL }}</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center;padding-top:24px;color:#3b2314;opacity:0.5;font-size:12px;">
+        A mellow day, every day. &mdash; Mellow Day PH
+      </td>
+    </tr>
+  </table>
+</div>

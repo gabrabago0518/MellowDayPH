@@ -8,8 +8,9 @@ import CupIllustration from "@/components/CupIllustration";
 import FoodIllustration from "@/components/FoodIllustration";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/lib/AuthContext";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
-import { getOrders, type Order, type OrderStatus } from "@/lib/orders";
+import { getOrders, getOrdersRemote, type Order, type OrderStatus } from "@/lib/orders";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   paid: "Paid",
@@ -36,15 +37,35 @@ function formatDate(iso: string) {
 }
 
 export default function OrdersPage() {
+  const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setOrders(getOrders());
-      setHydrated(true);
-    });
-  }, []);
+    if (authLoading) return;
+
+    let cancelled = false;
+
+    if (user) {
+      getOrdersRemote(user.id).then((remote) => {
+        if (!cancelled) {
+          setOrders(remote);
+          setHydrated(true);
+        }
+      });
+    } else {
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setOrders(getOrders());
+          setHydrated(true);
+        }
+      });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading]);
 
   return (
     <div className="flex min-h-screen flex-col bg-cream text-brown-900">
@@ -56,9 +77,18 @@ export default function OrdersPage() {
             My Orders
           </h1>
           <p className="mt-2 text-sm text-brown-900/70">
-            Orders placed from this device — a running list of everything you&apos;ve
-            ordered from Mellow Day PH.
+            {user
+              ? "Synced to your account — a running list of everything you've ordered from Mellow Day PH."
+              : "Orders placed from this device. Log in to keep this history synced across devices."}
           </p>
+          {!user && (
+            <Link
+              href="/login"
+              className="mt-2 inline-block text-sm font-semibold text-brown-900 hover:underline"
+            >
+              Log In
+            </Link>
+          )}
 
           {hydrated && orders.length === 0 && (
             <div className="mt-10 rounded-3xl bg-white/70 p-10 text-center shadow-sm">

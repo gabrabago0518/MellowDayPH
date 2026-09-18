@@ -5,14 +5,16 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
 import { formatPrice } from "@/lib/menu-data";
-import { updateOrderStatus } from "@/lib/orders";
+import { updateOrderStatus, updateOrderStatusRemote } from "@/lib/orders";
 
 type Status = "checking" | "succeeded" | "failed" | "pending" | "error";
 
 function ReturnContent() {
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const { clearCart } = useCart();
   const [status, setStatus] = useState<Status>("checking");
   const [orderSummary, setOrderSummary] = useState("");
@@ -59,14 +61,20 @@ function ReturnContent() {
 
         if (data.status === "succeeded") {
           setStatus("succeeded");
-          if (id) updateOrderStatus(id, "paid");
+          if (id) {
+            updateOrderStatus(id, "paid");
+            if (user) updateOrderStatusRemote(id, "paid");
+          }
           sessionStorage.removeItem("mellowday-payment");
           clearCart();
         } else if (data.status === "awaiting_payment_method" || data.status === "processing") {
           setStatus("pending");
         } else {
           setStatus("failed");
-          if (id) updateOrderStatus(id, "failed");
+          if (id) {
+            updateOrderStatus(id, "failed");
+            if (user) updateOrderStatusRemote(id, "failed");
+          }
         }
       })
       .catch((err) => {

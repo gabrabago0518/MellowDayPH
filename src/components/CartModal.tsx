@@ -14,19 +14,20 @@ export default function CartModal() {
     useCart();
 
   return (
-    <div
-      aria-hidden={!isOpen}
-      onClick={closeCart}
-      className={`fixed inset-0 z-[60] flex items-center justify-center bg-brown-900/50 p-4 backdrop-blur-sm transition-opacity duration-300 ${
-        isOpen ? "opacity-100" : "pointer-events-none opacity-0"
-      }`}
-    >
+    <>
+      <div
+        aria-hidden={!isOpen}
+        onClick={closeCart}
+        className={`fixed inset-0 z-40 ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      />
       <div
         role="dialog"
         aria-label="Your Mellow Bag"
         onClick={(e) => e.stopPropagation()}
-        className={`flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-cream shadow-2xl transition-all duration-300 ${
-          isOpen ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0"
+        className={`fixed right-4 top-24 z-[70] flex max-h-[75vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-3xl bg-cream shadow-2xl shadow-brown-900/20 transition-all duration-300 sm:right-6 ${
+          isOpen
+            ? "translate-y-0 scale-100 opacity-100"
+            : "pointer-events-none -translate-y-3 scale-95 opacity-0"
         }`}
       >
         <div className="flex items-center justify-between gap-4 border-b border-brown-100 px-6 py-5">
@@ -161,6 +162,6 @@ export default function CartModal() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

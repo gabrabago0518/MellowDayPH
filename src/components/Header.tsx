@@ -14,12 +14,12 @@ const NAV_LINKS = [
 ];
 
 function CartButton({ className = "" }: { className?: string }) {
-  const { totalItems, openCart } = useCart();
+  const { totalItems, isOpen, openCart, closeCart } = useCart();
   return (
     <button
       type="button"
-      onClick={openCart}
-      aria-label={`Open bag${totalItems > 0 ? ` (${totalItems} items)` : ""}`}
+      onClick={() => (isOpen ? closeCart() : openCart())}
+      aria-label={`${isOpen ? "Close" : "Open"} bag${totalItems > 0 ? ` (${totalItems} items)` : ""}`}
       className={`relative rounded-full p-2 text-brown-900 hover:bg-brown-100/60 ${className}`}
     >
       <IconCart className="h-6 w-6" />

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Logo from "./Logo";
 import { useCart } from "@/lib/CartContext";
 import { IconCart, IconClose, IconMenu } from "./icons";
 
 const NAV_LINKS = [
-  { href: "#home", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#menu", label: "Menu" },
-  { href: "#visit", label: "Visit Us" },
+  { href: "/#home", label: "Home" },
+  { href: "/#about", label: "About" },
+  { href: "/#menu", label: "Menu" },
+  { href: "/#visit", label: "Visit Us" },
 ];
 
 function CartButton({ className = "" }: { className?: string }) {
@@ -50,29 +51,29 @@ export default function Header() {
             scrolled ? "shadow-xl shadow-brown-900/15" : ""
           }`}
         >
-          <a href="#home" className="flex items-center gap-3">
+          <Link href="/#home" className="flex items-center gap-3">
             <Logo className="h-12 w-12 sm:h-14 sm:w-14" />
             <span className="font-heading text-xl font-bold text-brown-900 sm:text-2xl">
               Mellow Day
             </span>
-          </a>
+          </Link>
 
           <nav className="hidden items-center gap-8 text-base font-semibold text-brown-800 md:flex">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="transition-colors hover:text-brown-900">
+              <Link key={link.href} href={link.href} className="transition-colors hover:text-brown-900">
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
             <CartButton />
-            <a
-              href="#menu"
+            <Link
+              href="/#menu"
               className="rounded-full bg-brown-900 px-6 py-3.5 text-base font-semibold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
             >
               Order Now
-            </a>
+            </Link>
           </div>
 
           <div className="flex items-center gap-1 md:hidden">
@@ -95,22 +96,22 @@ export default function Header() {
         >
           <nav className="flex flex-col gap-1 rounded-3xl bg-cream/95 px-6 py-4 text-sm font-semibold text-brown-800 shadow-lg shadow-brown-900/10 backdrop-blur-md">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-2 py-2.5 transition-colors hover:bg-brown-100/60"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#menu"
+            <Link
+              href="/#menu"
               onClick={() => setOpen(false)}
               className="mt-2 rounded-full bg-brown-900 px-5 py-2.5 text-center text-cream"
             >
               Order Now
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

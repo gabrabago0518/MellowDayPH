@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: "/#about", label: "About" },
   { href: "/#menu", label: "Menu" },
   { href: "/#visit", label: "Visit Us" },
+  { href: "/orders", label: "My Orders" },
 ];
 
 function CartButton({ className = "" }: { className?: string }) {

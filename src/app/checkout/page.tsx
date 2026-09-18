@@ -11,6 +11,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/lib/CartContext";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
+import { saveOrder } from "@/lib/orders";
 
 const MIN_AMOUNT_PESOS = 20;
 const DELIVERY_FEE_PESOS = 49;
@@ -44,11 +45,31 @@ export default function CheckoutPage() {
     .map((item) => `${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}`)
     .join("\n");
 
+  const deliveryAddress =
+    fulfillment === "delivery" ? [street, barangayCity, landmark].filter(Boolean).join(", ") : undefined;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (method === "cash") {
+      saveOrder({
+        id: `cash-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        method: "cash",
+        status: "placed",
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        total: orderTotal,
+        fulfillment,
+        deliveryAddress,
+        name,
+        phone,
+      });
       setCashConfirmed(true);
       return;
     }
@@ -72,6 +93,24 @@ export default function CheckoutPage() {
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong. Please try again.");
       }
+
+      saveOrder({
+        id: data.paymentIntentId,
+        createdAt: new Date().toISOString(),
+        method: "gcash",
+        status: "pending",
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        total: orderTotal,
+        fulfillment,
+        deliveryAddress,
+        name,
+        phone,
+      });
 
       sessionStorage.setItem(
         "mellowday-payment",
@@ -141,6 +180,12 @@ export default function CheckoutPage() {
             >
               Back to Home
             </button>
+            <Link
+              href="/orders"
+              className="mt-3 inline-block w-full text-center text-sm font-semibold text-brown-900/70 hover:text-brown-900"
+            >
+              View My Orders
+            </Link>
           </div>
         </main>
         <Footer />

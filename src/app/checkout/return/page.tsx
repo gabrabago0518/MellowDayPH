@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/lib/CartContext";
 import { formatPrice } from "@/lib/menu-data";
+import { updateOrderStatus } from "@/lib/orders";
 
 type Status = "checking" | "succeeded" | "failed" | "pending" | "error";
 
@@ -58,12 +59,14 @@ function ReturnContent() {
 
         if (data.status === "succeeded") {
           setStatus("succeeded");
+          if (id) updateOrderStatus(id, "paid");
           sessionStorage.removeItem("mellowday-payment");
           clearCart();
         } else if (data.status === "awaiting_payment_method" || data.status === "processing") {
           setStatus("pending");
         } else {
           setStatus("failed");
+          if (id) updateOrderStatus(id, "failed");
         }
       })
       .catch((err) => {
@@ -109,6 +112,12 @@ function ReturnContent() {
                 className="mt-6 inline-block w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
               >
                 Back to Home
+              </Link>
+              <Link
+                href="/orders"
+                className="mt-3 inline-block w-full text-center text-sm font-semibold text-brown-900/70 hover:text-brown-900"
+              >
+                View My Orders
               </Link>
             </>
           )}

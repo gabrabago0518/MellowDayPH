@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
+import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
 import { IconCart, IconClose, IconMenu } from "./icons";
 
@@ -30,6 +31,56 @@ function CartButton({ className = "" }: { className?: string }) {
         </span>
       )}
     </button>
+  );
+}
+
+function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const { user, signOut } = useAuth();
+
+  if (!user) {
+    return (
+      <Link
+        href="/login"
+        onClick={onNavigate}
+        className={
+          mobile
+            ? "rounded-lg px-2 py-2.5 transition-colors hover:bg-brown-100/60"
+            : "text-base font-semibold text-brown-800 transition-colors hover:text-brown-900"
+        }
+      >
+        Log In
+      </Link>
+    );
+  }
+
+  const displayName = user.user_metadata?.full_name?.split(" ")[0] || user.email?.split("@")[0];
+
+  if (mobile) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          signOut();
+          onNavigate?.();
+        }}
+        className="rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-brown-100/60"
+      >
+        Log Out ({displayName})
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 text-sm font-semibold text-brown-800">
+      <span>Hi, {displayName}</span>
+      <button
+        type="button"
+        onClick={() => signOut()}
+        className="text-brown-900/60 underline-offset-2 transition-colors hover:text-brown-900 hover:underline"
+      >
+        Log Out
+      </button>
+    </div>
   );
 }
 
@@ -65,6 +116,7 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <AccountLinks />
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
@@ -92,7 +144,7 @@ export default function Header() {
 
         <div
           className={`overflow-hidden transition-[max-height,opacity] duration-300 md:hidden ${
-            open ? "mt-2 max-h-72 opacity-100" : "max-h-0 opacity-0"
+            open ? "mt-2 max-h-[30rem] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <nav className="flex flex-col gap-1 rounded-3xl bg-cream/95 px-6 py-4 text-sm font-semibold text-brown-800 shadow-lg shadow-brown-900/10 backdrop-blur-md">
@@ -106,6 +158,7 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <AccountLinks mobile onNavigate={() => setOpen(false)} />
             <Link
               href="/#menu"
               onClick={() => setOpen(false)}

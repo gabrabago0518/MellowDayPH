@@ -24,6 +24,8 @@ export const metadata: Metadata = {
     "Handcrafted milk tea, coffee, and specialty drinks made slow, made fresh — a mellow day, every day.",
   icons: {
     icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 

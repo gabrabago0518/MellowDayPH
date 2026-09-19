@@ -65,7 +65,14 @@ function formatDate(iso: string) {
   });
 }
 
-type LoadState = "loading" | "unauthenticated" | "unauthorized" | "not-configured" | "error" | "ready";
+type LoadState =
+  | "loading"
+  | "unauthenticated"
+  | "token-rejected"
+  | "unauthorized"
+  | "not-configured"
+  | "error"
+  | "ready";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -105,7 +112,12 @@ export default function AdminPage() {
       if (cancelled) return;
 
       if (res.status === 401) {
-        setState("unauthenticated");
+        // We had a token client-side but the server rejected it — this is
+        // different from "never logged in" and looping back to /admin/login
+        // would just be confusing, so surface it instead.
+        const body = await res.json().catch(() => ({}));
+        setErrorMessage(body.error || "Session rejected by the server.");
+        setState("token-rejected");
         return;
       }
       if (res.status === 403) {
@@ -160,6 +172,20 @@ export default function AdminPage() {
 
           {(state === "loading" || authLoading) && (
             <p className="mt-10 text-sm text-brown-900/60">Loading…</p>
+          )}
+
+          {state === "token-rejected" && (
+            <div className="mt-10 rounded-3xl bg-white/70 p-8 text-center shadow-sm">
+              <h2 className="font-heading text-xl font-bold text-brown-900">
+                Session Not Recognized
+              </h2>
+              <p className="mt-2 text-sm text-brown-900/70">
+                You&apos;re logged in, but the server rejected your session:{" "}
+                <strong>{errorMessage}</strong>. This usually means
+                SUPABASE_SERVICE_ROLE_KEY belongs to a different Supabase project than
+                NEXT_PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_ANON_KEY.
+              </p>
+            </div>
           )}
 
           {state === "unauthorized" && (

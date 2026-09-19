@@ -22,7 +22,10 @@ export async function GET(request: Request) {
   // client-supplied email/identity for admin access.
   const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
   if (userError || !userData.user?.email) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json(
+      { error: userError?.message || "Not authenticated" },
+      { status: 401 },
+    );
   }
 
   const adminEmails = getAdminEmails();

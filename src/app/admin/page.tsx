@@ -181,9 +181,11 @@ export default function AdminPage() {
               </h2>
               <p className="mt-2 text-sm text-brown-900/70">
                 You&apos;re logged in, but the server rejected your session:{" "}
-                <strong>{errorMessage}</strong>. This usually means
-                SUPABASE_SERVICE_ROLE_KEY belongs to a different Supabase project than
-                NEXT_PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_ANON_KEY.
+                <strong>{errorMessage}</strong>. This means the value saved for
+                SUPABASE_SERVICE_ROLE_KEY in Vercel isn&apos;t a valid key for
+                this Supabase project — re-copy the Secret key from Supabase →
+                Settings → API and re-save it (watch for an accidental leading/
+                trailing space or a line break from the copy), then redeploy.
               </p>
             </div>
           )}

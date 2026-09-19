@@ -1,37 +1,14 @@
 import { NextResponse } from "next/server";
-import { getAdminEmails, getSupabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(request: Request) {
-  if (!isAdminConfigured) {
-    return NextResponse.json(
-      { error: "Admin dashboard isn't configured yet on the server." },
-      { status: 503 },
-    );
-  }
-
-  const authHeader = request.headers.get("authorization") ?? "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-
-  if (!token) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const auth = await verifyAdmin(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const supabaseAdmin = getSupabaseAdmin();
-
-  // Verify the token server-side against Supabase — never trust a
-  // client-supplied email/identity for admin access.
-  const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-  if (userError || !userData.user?.email) {
-    return NextResponse.json(
-      { error: userError?.message || "Not authenticated" },
-      { status: 401 },
-    );
-  }
-
-  const adminEmails = getAdminEmails();
-  if (!adminEmails.includes(userData.user.email.toLowerCase())) {
-    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-  }
 
   const { data: orders, error: ordersError } = await supabaseAdmin
     .from("orders")

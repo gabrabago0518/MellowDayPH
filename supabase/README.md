@@ -36,3 +36,12 @@ saved — the currently-live deployment won't pick them up on its own. After
 saving both, trigger a new deployment (Deployments tab → the latest one's
 **⋯** menu → Redeploy, or just push any commit to `main`) and confirm its
 Production entry shows a timestamp *after* you saved the variables.
+
+## 4. Employees tab (/admin/employees)
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/002_create_staff.sql` → **Run**.
+
+This creates the `staff` table the Employees tab reads and writes. It's
+only ever accessed through the service-role admin API, so no further
+Vercel configuration is needed beyond step 3 above.

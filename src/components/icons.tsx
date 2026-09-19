@@ -105,3 +105,62 @@ export function IconArrowRight(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconGrid(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13" y="3.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="3.5" y="13" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13" y="13" width="7.5" height="7.5" rx="1.5" />
+    </svg>
+  );
+}
+
+export function IconReceipt(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M6 3.5h12v17l-2.5-1.5L13 20.5 10.5 19 8 20.5 5.5 19V3.5z" />
+      <path d="M8.5 8h7M8.5 11.5h7M8.5 15h4" />
+    </svg>
+  );
+}
+
+export function IconUsers(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="9" cy="8" r="3.25" />
+      <path d="M3.5 20c.7-3.3 3-5 5.5-5s4.8 1.7 5.5 5" />
+      <circle cx="17" cy="8.5" r="2.5" />
+      <path d="M15.5 12c2 .2 3.6 1.6 4.2 4.3" />
+    </svg>
+  );
+}
+
+export function IconBadge(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="4" y="4.5" width="16" height="15" rx="2.5" />
+      <circle cx="12" cy="10.5" r="2.5" />
+      <path d="M7.5 16.5c.9-1.9 2.4-2.8 4.5-2.8s3.6.9 4.5 2.8" />
+    </svg>
+  );
+}
+
+export function IconGear(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3.5v2.2M12 18.3v2.2M4.9 6.5l1.8 1.3M17.3 16.2l1.8 1.3M3.5 12h2.2M18.3 12h2.2M4.9 17.5l1.8-1.3M17.3 7.8l1.8-1.3" />
+    </svg>
+  );
+}
+
+export function IconLogout(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M9 4.5H6a1.5 1.5 0 0 0-1.5 1.5v12A1.5 1.5 0 0 0 6 19.5h3" />
+      <path d="M14 16l4.5-4-4.5-4M18 12H9" />
+    </svg>
+  );
+}

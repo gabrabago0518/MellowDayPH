@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { getAdminEmails, getSupabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
+import {
+  getAdminEmails,
+  getServiceKeyDiagnostics,
+  getSupabaseAdmin,
+  isAdminConfigured,
+} from "@/lib/supabase-admin";
 
 export async function GET(request: Request) {
   if (!isAdminConfigured) {
@@ -23,7 +28,10 @@ export async function GET(request: Request) {
   const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
   if (userError || !userData.user?.email) {
     return NextResponse.json(
-      { error: userError?.message || "Not authenticated" },
+      {
+        error: userError?.message || "Not authenticated",
+        diagnostics: getServiceKeyDiagnostics(),
+      },
       { status: 401 },
     );
   }

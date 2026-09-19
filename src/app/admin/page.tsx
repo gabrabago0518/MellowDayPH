@@ -79,6 +79,11 @@ export default function AdminPage() {
   const { loading: authLoading } = useAuth();
   const [state, setState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [diagnostics, setDiagnostics] = useState<{
+    urlUsed: string | null;
+    serviceKeyLength: number;
+    serviceKeyFormat: string;
+  } | null>(null);
   const [data, setData] = useState<Overview | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
@@ -117,6 +122,7 @@ export default function AdminPage() {
         // would just be confusing, so surface it instead.
         const body = await res.json().catch(() => ({}));
         setErrorMessage(body.error || "Session rejected by the server.");
+        setDiagnostics(body.diagnostics ?? null);
         setState("token-rejected");
         return;
       }
@@ -187,6 +193,25 @@ export default function AdminPage() {
                 Settings → API and re-save it (watch for an accidental leading/
                 trailing space or a line break from the copy), then redeploy.
               </p>
+              {diagnostics && (
+                <div className="mt-4 rounded-2xl bg-brown-100/40 p-4 text-left text-xs text-brown-900/70">
+                  <p className="font-semibold text-brown-900">
+                    What the live server actually has loaded:
+                  </p>
+                  <p className="mt-1">
+                    URL:{" "}
+                    <code className="rounded bg-white/60 px-1">
+                      {diagnostics.urlUsed ?? "(not set)"}
+                    </code>
+                  </p>
+                  <p className="mt-1">
+                    Service key: {diagnostics.serviceKeyLength} characters, format:{" "}
+                    <code className="rounded bg-white/60 px-1">
+                      {diagnostics.serviceKeyFormat}
+                    </code>
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

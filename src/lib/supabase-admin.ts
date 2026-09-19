@@ -27,6 +27,24 @@ export function getSupabaseAdmin(): SupabaseClient {
   return cachedClient;
 }
 
+// Safe-to-show diagnostics for when Supabase rejects the service-role key —
+// never the key itself, just enough shape (length, which key format) to
+// confirm whether the value the running deployment actually has matches
+// what was pasted into Vercel, without a screenshot round-trip.
+export function getServiceKeyDiagnostics() {
+  const key = serviceRoleKey ?? "";
+  let format: "empty" | "new-secret" | "legacy-jwt" | "unrecognized" = "unrecognized";
+  if (!key) format = "empty";
+  else if (key.startsWith("sb_secret_")) format = "new-secret";
+  else if (key.startsWith("eyJ")) format = "legacy-jwt";
+
+  return {
+    urlUsed: supabaseUrl ?? null,
+    serviceKeyLength: key.length,
+    serviceKeyFormat: format,
+  };
+}
+
 export function getAdminEmails(): string[] {
   return (process.env.ADMIN_EMAILS ?? "")
     .split(",")

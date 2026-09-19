@@ -86,6 +86,62 @@ export default function AdminOverviewPage() {
           </div>
 
           <section className="mt-10">
+            <h2 className="font-heading text-xl font-bold text-brown-900">Today vs. This Month</h2>
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="rounded-3xl bg-white/70 p-5 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brown-900/50">
+                  Orders Today (DTD)
+                </p>
+                <p className="mt-1 font-heading text-2xl font-bold text-brown-900">
+                  {data.stats.dtd.orders}
+                </p>
+              </div>
+              <div className="rounded-3xl bg-white/70 p-5 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brown-900/50">
+                  Revenue Today (DTD)
+                </p>
+                <p className="mt-1 font-heading text-2xl font-bold text-brown-900">
+                  {formatPrice(data.stats.dtd.revenue)}
+                </p>
+              </div>
+              <div className="rounded-3xl bg-white/70 p-5 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brown-900/50">
+                  Orders This Month (MTD)
+                </p>
+                <p className="mt-1 font-heading text-2xl font-bold text-brown-900">
+                  {data.stats.mtd.orders}
+                </p>
+              </div>
+              <div className="rounded-3xl bg-white/70 p-5 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brown-900/50">
+                  Revenue This Month (MTD)
+                </p>
+                <p className="mt-1 font-heading text-2xl font-bold text-brown-900">
+                  {formatPrice(data.stats.mtd.revenue)}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="font-heading text-xl font-bold text-brown-900">Best Seller</h2>
+            <div className="mt-4 rounded-3xl bg-white/70 p-5 shadow-sm">
+              {data.stats.mostSoldProduct ? (
+                <>
+                  <p className="font-heading text-xl font-bold text-brown-900">
+                    {data.stats.mostSoldProduct.name}
+                  </p>
+                  <p className="mt-1 text-sm text-brown-900/70">
+                    {data.stats.mostSoldProduct.quantity} sold (paid &amp; placed orders)
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-brown-900/60">No confirmed orders yet.</p>
+              )}
+            </div>
+          </section>
+
+          <section className="mt-10">
             <div className="flex items-center justify-between">
               <h2 className="font-heading text-xl font-bold text-brown-900">Recent Orders</h2>
               <Link

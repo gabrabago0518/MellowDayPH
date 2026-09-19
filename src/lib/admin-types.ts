@@ -29,6 +29,9 @@ export type AdminOverview = {
     totalAccounts: number;
     revenue: number;
     statusCounts: Record<OrderStatus, number>;
+    dtd: { orders: number; revenue: number };
+    mtd: { orders: number; revenue: number };
+    mostSoldProduct: { name: string; quantity: number } | null;
   };
 };
 

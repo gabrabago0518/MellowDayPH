@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
+// The store operates in the Philippines, so "today" and "this month" for
+// DTD/MTD stats follow Asia/Manila local time rather than the server's
+// (UTC) clock — otherwise orders near midnight would land on the wrong day.
+const phDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Manila",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function phDateKey(date: Date): string {
+  return phDateFormatter.format(date);
+}
+
 export async function GET(request: Request) {
   const auth = await verifyAdmin(request);
   if (!auth.ok) {
@@ -44,14 +58,54 @@ export async function GET(request: Request) {
   }
   accounts.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
+  const todayKey = phDateKey(new Date());
+  const monthKey = todayKey.slice(0, 7);
+
   const statusCounts = { pending: 0, paid: 0, placed: 0, failed: 0 };
   let revenue = 0;
+  let dtdOrders = 0;
+  let dtdRevenue = 0;
+  let mtdOrders = 0;
+  let mtdRevenue = 0;
+  const productSales = new Map<string, { name: string; quantity: number }>();
+
   for (const order of orders ?? []) {
     if (order.status in statusCounts) {
       statusCounts[order.status as keyof typeof statusCounts]++;
     }
-    if (order.status === "paid" || order.status === "placed") {
-      revenue += Number(order.total);
+
+    const confirmed = order.status === "paid" || order.status === "placed";
+    if (confirmed) revenue += Number(order.total);
+
+    const orderDateKey = phDateKey(new Date(order.created_at));
+    const isToday = orderDateKey === todayKey;
+    const isThisMonth = orderDateKey.slice(0, 7) === monthKey;
+
+    if (isToday) {
+      dtdOrders++;
+      if (confirmed) dtdRevenue += Number(order.total);
+    }
+    if (isThisMonth) {
+      mtdOrders++;
+      if (confirmed) mtdRevenue += Number(order.total);
+    }
+
+    if (confirmed) {
+      for (const item of order.items ?? []) {
+        const existing = productSales.get(item.id);
+        if (existing) {
+          existing.quantity += item.quantity;
+        } else {
+          productSales.set(item.id, { name: item.name, quantity: item.quantity });
+        }
+      }
+    }
+  }
+
+  let mostSoldProduct: { name: string; quantity: number } | null = null;
+  for (const entry of productSales.values()) {
+    if (!mostSoldProduct || entry.quantity > mostSoldProduct.quantity) {
+      mostSoldProduct = entry;
     }
   }
 
@@ -63,6 +117,9 @@ export async function GET(request: Request) {
       totalAccounts: accounts.length,
       revenue,
       statusCounts,
+      dtd: { orders: dtdOrders, revenue: dtdRevenue },
+      mtd: { orders: mtdOrders, revenue: mtdRevenue },
+      mostSoldProduct,
     },
   });
 }

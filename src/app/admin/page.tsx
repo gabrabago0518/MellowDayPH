@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AdminHeader from "@/components/AdminHeader";
 import { useAuth } from "@/lib/AuthContext";
 import { formatPrice } from "@/lib/menu-data";
 import { supabase } from "@/lib/supabase";
@@ -75,7 +74,7 @@ type LoadState =
 
 export default function AdminPage() {
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user, signOut } = useAuth();
   const [state, setState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [data, setData] = useState<Overview | null>(null);
@@ -149,6 +148,11 @@ export default function AdminPage() {
     if (state === "unauthenticated") router.replace("/admin/login");
   }, [state, router]);
 
+  const handleLogout = async () => {
+    await signOut();
+    router.replace("/admin/login");
+  };
+
   const filteredOrders = (data?.orders ?? []).filter((order) => {
     if (statusFilter !== "all" && order.status !== statusFilter) return false;
     if (!search.trim()) return true;
@@ -158,16 +162,34 @@ export default function AdminPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-cream text-brown-900">
-      <AdminHeader />
-
       <main className="flex-1 px-6 py-10 md:py-12">
         <div className="mx-auto max-w-6xl">
-          <h1 className="font-heading text-3xl font-bold text-brown-900 sm:text-4xl">
-            Admin Dashboard
-          </h1>
-          <p className="mt-2 text-sm text-brown-900/70">
-            All orders and accounts across Mellow Day PH.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="font-heading text-3xl font-bold text-brown-900 sm:text-4xl">
+                Admin Dashboard
+              </h1>
+              <p className="mt-2 text-sm text-brown-900/70">
+                All orders and accounts across Mellow Day PH.
+              </p>
+            </div>
+            {user && (
+              <div className="flex items-center gap-3">
+                {user.email && (
+                  <span className="hidden text-sm text-brown-900/60 sm:inline">
+                    {user.email}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full bg-brown-900 px-5 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-brown-800"
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
 
           {(state === "loading" || authLoading) && (
             <p className="mt-10 text-sm text-brown-900/60">Loading…</p>

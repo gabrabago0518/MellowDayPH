@@ -21,3 +21,18 @@ the template body with the contents of `email-templates/confirm-signup.html`
 This is the email sent when someone signs up; it links back to
 `/auth/confirm` on the site, which shows a "you're confirmed" page and
 logs them in.
+
+## 3. Admin dashboard (/admin)
+
+In Vercel → Project Settings → Environment Variables, add:
+
+- `SUPABASE_SERVICE_ROLE_KEY` (type: **Secret**) — Supabase dashboard →
+  Settings → API → "Secret keys". Server-only; never exposed to the browser.
+- `ADMIN_EMAILS` (type: **Config**) — comma-separated email(s) allowed to
+  view `/admin`.
+
+Vercel env var changes only apply to deployments created *after* they're
+saved — the currently-live deployment won't pick them up on its own. After
+saving both, trigger a new deployment (Deployments tab → the latest one's
+**⋯** menu → Redeploy, or just push any commit to `main`) and confirm its
+Production entry shows a timestamp *after* you saved the variables.

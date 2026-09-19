@@ -69,7 +69,7 @@ type LoadState = "loading" | "unauthenticated" | "unauthorized" | "not-configure
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { loading: authLoading } = useAuth();
   const [state, setState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [data, setData] = useState<Overview | null>(null);
@@ -79,7 +79,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!user || !supabase) {
+    if (!supabase) {
       queueMicrotask(() => setState("unauthenticated"));
       return;
     }
@@ -87,6 +87,10 @@ export default function AdminPage() {
     let cancelled = false;
 
     async function load() {
+      // Read the session directly from the SDK rather than the AuthContext's
+      // `user` — right after a fresh login via router.push, that context can
+      // briefly still reflect the pre-login state, incorrectly bouncing an
+      // already-authenticated visitor back to /login.
       const { data: sessionData } = await supabase!.auth.getSession();
       const token = sessionData.session?.access_token;
       if (!token) {
@@ -128,7 +132,7 @@ export default function AdminPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading]);
+  }, [authLoading]);
 
   useEffect(() => {
     if (state === "unauthenticated") router.replace("/login?redirect=/admin");

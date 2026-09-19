@@ -135,7 +135,7 @@ export default function AdminPage() {
   }, [authLoading]);
 
   useEffect(() => {
-    if (state === "unauthenticated") router.replace("/login?redirect=/admin");
+    if (state === "unauthenticated") router.replace("/admin/login");
   }, [state, router]);
 
   const filteredOrders = (data?.orders ?? []).filter((order) => {

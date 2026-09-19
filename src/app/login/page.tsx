@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
-export default function LoginPage() {
+function safeRedirect(path: string | null): string {
+  if (path && path.startsWith("/") && !path.startsWith("//")) return path;
+  return "/orders";
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +35,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/orders");
+    router.push(safeRedirect(searchParams.get("redirect")));
   };
 
   return (
@@ -94,5 +100,13 @@ export default function LoginPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

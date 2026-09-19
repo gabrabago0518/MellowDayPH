@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import AdminHeader from "@/components/AdminHeader";
 import { useAuth } from "@/lib/AuthContext";
 import { formatPrice } from "@/lib/menu-data";
 import { supabase } from "@/lib/supabase";
@@ -159,9 +158,9 @@ export default function AdminPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-cream text-brown-900">
-      <Header />
+      <AdminHeader />
 
-      <main className="flex-1 px-6 py-28 md:py-32">
+      <main className="flex-1 px-6 py-10 md:py-12">
         <div className="mx-auto max-w-6xl">
           <h1 className="font-heading text-3xl font-bold text-brown-900 sm:text-4xl">
             Admin Dashboard
@@ -368,7 +367,9 @@ export default function AdminPage() {
         </div>
       </main>
 
-      <Footer />
+      <footer className="border-t border-brown-900/10 px-6 py-6 text-center text-xs text-brown-900/50">
+        Mellow Day PH — Admin
+      </footer>
     </div>
   );
 }

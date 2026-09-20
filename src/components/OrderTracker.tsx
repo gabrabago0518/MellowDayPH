@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import Image from "next/image";
+import { IconBagCheck } from "./icons";
 import { getEffectiveStage, getStageLabel, getVisibleStages } from "@/lib/order-stage";
 import type { OrderStage } from "@/lib/orders";
 
@@ -23,31 +24,43 @@ export default function OrderTracker({
   const stages = getVisibleStages(method);
   const currentIndex = stages.indexOf(effectiveStage);
 
+  // No mascot illustration exists yet for "Ready to Pick Up" — fall back to
+  // a plain bag+checkmark icon (matching the header's cart icon) instead of
+  // the delivery-motorcycle image, which doesn't fit a pickup order.
+  const usesBagIcon = fulfillment === "pickup";
+
   return (
     <div>
       <div className="flex items-center">
-        {stages.map((s, i) => (
-          <Fragment key={s}>
-            {i > 0 && (
+        {stages.map((s, i) => {
+          const reached = i <= currentIndex;
+          const showBagIcon = usesBagIcon && s === "out_for_delivery";
+
+          return (
+            <Fragment key={s}>
+              {i > 0 && <div className={`h-0.5 flex-1 ${reached ? "bg-brown-900" : "bg-brown-900/15"}`} />}
               <div
-                className={`h-0.5 flex-1 ${i <= currentIndex ? "bg-brown-900" : "bg-brown-900/15"}`}
-              />
-            )}
-            <div
-              className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${
-                i <= currentIndex ? "border-brown-900 bg-brown-100/40" : "border-brown-900/15 bg-white"
-              }`}
-            >
-              <Image
-                src={STAGE_ICON[s]}
-                alt={getStageLabel(fulfillment, s)}
-                fill
-                className={`rounded-full object-cover p-0.5 ${i <= currentIndex ? "" : "opacity-30 grayscale"}`}
-                sizes="56px"
-              />
-            </div>
-          </Fragment>
-        ))}
+                className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${
+                  reached ? "border-brown-900 bg-brown-100/40" : "border-brown-900/15 bg-white"
+                }`}
+              >
+                {showBagIcon ? (
+                  <IconBagCheck
+                    className={`h-7 w-7 ${reached ? "text-brown-900" : "text-brown-900/25"}`}
+                  />
+                ) : (
+                  <Image
+                    src={STAGE_ICON[s]}
+                    alt={getStageLabel(fulfillment, s)}
+                    fill
+                    className={`rounded-full object-cover p-0.5 ${reached ? "" : "opacity-30 grayscale"}`}
+                    sizes="56px"
+                  />
+                )}
+              </div>
+            </Fragment>
+          );
+        })}
       </div>
       <div className="mt-2 flex items-start">
         {stages.map((s, i) => (

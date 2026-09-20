@@ -208,7 +208,7 @@ export default function OrdersPage() {
                           onClick={() => handleMarkDelivered(order)}
                           className="mt-5 w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
                         >
-                          {order.fulfillment === "pickup" ? "Mark as Picked Up" : "Mark as Delivered"}
+                          {order.fulfillment === "pickup" ? "Mark as Completed" : "Mark as Delivered"}
                         </button>
                       )}
                     </div>

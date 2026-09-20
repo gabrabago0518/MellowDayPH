@@ -74,6 +74,18 @@ export function IconCart(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+// Same paper-bag silhouette as IconCart, with a checkmark — used for the
+// "Ready to Pick Up" tracker step (no matching mascot illustration yet).
+export function IconBagCheck(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M6 8h12l1 12.5a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 20.5z" />
+      <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+      <path d="M9.25 13.75l1.75 1.75 3.75-3.75" />
+    </svg>
+  );
+}
+
 export function IconPlus(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" {...props}>

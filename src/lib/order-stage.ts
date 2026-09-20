@@ -10,8 +10,8 @@ export function getVisibleStages(method: "gcash" | "cash"): OrderStage[] {
 
 export function getStageLabel(fulfillment: "pickup" | "delivery", stage: OrderStage): string {
   if (fulfillment === "pickup") {
-    if (stage === "out_for_delivery") return "Ready for Pickup";
-    if (stage === "delivered") return "Picked Up";
+    if (stage === "out_for_delivery") return "Ready to Pick Up";
+    if (stage === "delivered") return "Completed";
   }
   switch (stage) {
     case "confirmation":

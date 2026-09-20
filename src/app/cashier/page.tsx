@@ -47,6 +47,11 @@ function printOrderTicket(order: AdminOrderRow) {
         <p>${formatDate(order.created_at)}</p>
         <p>${order.name} &middot; ${order.phone}</p>
         <p>${order.fulfillment === "delivery" ? "Delivery" : "Pickup"}</p>
+        ${
+          order.method === "cash" && order.change_for != null
+            ? `<p><strong>Change for: ${formatPrice(order.change_for)}</strong></p>`
+            : ""
+        }
         <hr />
         <ul>${itemsHtml}</ul>
       </body>
@@ -95,6 +100,11 @@ function printReceipt(order: AdminOrderRow) {
         <p style="text-align:left;margin-top:6px;">
           Payment: ${order.method === "gcash" ? "GCash" : "Cash"}
         </p>
+        ${
+          order.method === "cash" && order.change_for != null
+            ? `<p style="text-align:left;font-weight:bold;">Change for: ${formatPrice(order.change_for)}</p>`
+            : ""
+        }
         <p style="margin-top:16px;">Thank you for choosing Mellow Day PH!</p>
       </body>
     </html>
@@ -341,6 +351,11 @@ export default function CashierPage() {
                   {order.fulfillment === "delivery" && order.delivery_address && (
                     <p className="mt-3 text-xs text-brown-900/60">
                       Deliver to: {order.delivery_address}
+                    </p>
+                  )}
+                  {order.method === "cash" && order.change_for != null && (
+                    <p className="mt-1 text-xs font-bold text-brown-900">
+                      Change for: {formatPrice(order.change_for)}
                     </p>
                   )}
 

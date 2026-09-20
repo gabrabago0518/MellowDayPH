@@ -12,6 +12,7 @@ export type AdminOrderRow = {
   total: number;
   fulfillment: "pickup" | "delivery";
   delivery_address: string | null;
+  change_for: number | null;
   name: string;
   phone: string;
 };

@@ -102,3 +102,13 @@ order through Confirmation → Preparing → Out for Delivery/Ready to Pick Up
 → Delivered/Completed, print a kitchen ticket while an order is
 "Preparing", and print a receipt once it's "Out for Delivery"/"Ready to
 Pick Up".
+
+## 8. Cash on Delivery change amount
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/007_add_order_change_for.sql` → **Run**.
+
+This adds a `change_for` column to `orders`. At checkout, a customer paying
+Cash on Delivery can optionally note the bill they'll pay with (e.g.
+"change for ₱500"), which then shows on the order card, kitchen ticket, and
+receipt in the cashier dashboard so the rider brings the right change.

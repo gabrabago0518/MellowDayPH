@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [barangay, setBarangay] = useState("");
   const [landmark, setLandmark] = useState("");
+  const [changeFor, setChangeFor] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cashConfirmed, setCashConfirmed] = useState(false);
@@ -63,12 +64,20 @@ export default function CheckoutPage() {
   const deliveryFee = fulfillment === "delivery" ? getDeliveryFeeForCity(city) : 0;
   const orderTotal = totalPrice + deliveryFee;
 
+  const isCashOnDelivery = method === "cash" && fulfillment === "delivery";
+  const changeForNumber = changeFor.trim() ? Number(changeFor) : undefined;
+  const changeForError =
+    isCashOnDelivery && changeForNumber !== undefined && changeForNumber < orderTotal
+      ? `Must be at least the order total (${formatPrice(orderTotal)}).`
+      : null;
+
   const canSubmit =
     items.length > 0 &&
     name.trim() &&
     phone.trim() &&
     email.trim() &&
     !loading &&
+    !changeForError &&
     (fulfillment === "pickup" || (street.trim() && city && barangay));
 
   const orderSummary = items
@@ -102,6 +111,7 @@ export default function CheckoutPage() {
         total: orderTotal,
         fulfillment,
         deliveryAddress,
+        changeFor: isCashOnDelivery ? changeForNumber : undefined,
         name,
         phone,
       };
@@ -225,6 +235,9 @@ export default function CheckoutPage() {
               {"\n"}Phone: {phone}
               {fulfillment === "delivery" &&
                 `\nDeliver to: ${[street, barangay, city, landmark].filter(Boolean).join(", ")}`}
+              {isCashOnDelivery &&
+                changeForNumber !== undefined &&
+                `\nChange for: ${formatPrice(changeForNumber)}`}
             </pre>
             <button
               type="button"
@@ -512,6 +525,32 @@ export default function CheckoutPage() {
                     </div>
                   </label>
                 </div>
+
+                {isCashOnDelivery && (
+                  <div className="mt-4 border-t border-brown-900/10 pt-4">
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-semibold text-brown-900/80">
+                        Change for (optional)
+                      </span>
+                      <input
+                        type="number"
+                        min={0}
+                        step="1"
+                        inputMode="numeric"
+                        value={changeFor}
+                        onChange={(e) => setChangeFor(e.target.value)}
+                        placeholder={`e.g. ${Math.ceil(orderTotal / 100) * 100}`}
+                        className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                      />
+                    </label>
+                    <p className="mt-1.5 text-xs text-brown-900/60">
+                      Enter the bill you&apos;ll pay with so the rider brings the right change.
+                    </p>
+                    {changeForError && (
+                      <p className="mt-1.5 text-xs text-red-600">{changeForError}</p>
+                    )}
+                  </div>
+                )}
               </section>
             </div>
 

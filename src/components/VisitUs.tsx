@@ -2,6 +2,11 @@ import Image from "next/image";
 import Reveal from "./Reveal";
 import { IconPin } from "./icons";
 
+const STORE_ADDRESS = "Corner Saint Mary, Central Signal Village, Taguig City";
+// Keyless embed (no Google Maps API key/billing needed) — Google's
+// "q=...&output=embed" query format renders a live map for a search term.
+const MAP_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent(STORE_ADDRESS)}&output=embed`;
+
 export default function VisitUs() {
   return (
     <section id="visit" className="bg-cream px-6 py-20 md:py-28 lg:py-32">
@@ -31,6 +36,16 @@ export default function VisitUs() {
           >
             Find a Store
           </a>
+
+          <div className="relative mx-auto mt-6 h-48 w-full max-w-sm overflow-hidden rounded-2xl border border-cream/20 bg-cream/10 shadow-lg shadow-black/20 sm:h-56">
+            <iframe
+              src={MAP_EMBED_URL}
+              title="Mellow Day PH location map"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-full w-full border-0"
+            />
+          </div>
 
           <div
             aria-hidden

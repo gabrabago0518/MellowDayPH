@@ -13,6 +13,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await request.json().catch(() => null);
   const stage = body?.stage;
+  const stageHistory = body?.stageHistory;
 
   if (typeof stage !== "string" || !VALID_STAGES.includes(stage)) {
     return NextResponse.json({ error: "Invalid stage." }, { status: 400 });
@@ -20,7 +21,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { data, error } = await getSupabaseAdmin()
     .from("orders")
-    .update({ stage })
+    .update({
+      stage,
+      ...(stageHistory && typeof stageHistory === "object" ? { stage_history: stageHistory } : {}),
+    })
     .eq("id", id)
     .select()
     .single();

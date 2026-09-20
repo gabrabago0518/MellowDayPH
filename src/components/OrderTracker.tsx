@@ -1,8 +1,8 @@
 import { Fragment } from "react";
 import Image from "next/image";
 import { IconBagCheck } from "./icons";
-import { getEffectiveStage, getStageLabel, getVisibleStages } from "@/lib/order-stage";
-import type { OrderStage } from "@/lib/orders";
+import { formatStageTime, getEffectiveStage, getStageLabel, getVisibleStages } from "@/lib/order-stage";
+import type { OrderStage, StageHistory } from "@/lib/orders";
 
 const STAGE_ICON: Record<OrderStage, string> = {
   confirmation: "/confirmation.webp",
@@ -15,10 +15,12 @@ export default function OrderTracker({
   fulfillment,
   method,
   stage,
+  stageHistory,
 }: {
   fulfillment: "pickup" | "delivery";
   method: "gcash" | "cash";
   stage: OrderStage | null | undefined;
+  stageHistory?: StageHistory;
 }) {
   const effectiveStage = getEffectiveStage(stage, method);
   const stages = getVisibleStages(method);
@@ -63,18 +65,26 @@ export default function OrderTracker({
         })}
       </div>
       <div className="mt-2 flex items-start">
-        {stages.map((s, i) => (
-          <Fragment key={s}>
-            {i > 0 && <div className="flex-1" />}
-            <div
-              className={`w-14 shrink-0 text-center text-[11px] font-bold leading-tight ${
-                i <= currentIndex ? "text-brown-900" : "text-brown-900/40"
-              }`}
-            >
-              {getStageLabel(fulfillment, s)}
-            </div>
-          </Fragment>
-        ))}
+        {stages.map((s, i) => {
+          const timestamp = stageHistory?.[s];
+          return (
+            <Fragment key={s}>
+              {i > 0 && <div className="flex-1" />}
+              <div
+                className={`w-14 shrink-0 text-center text-[11px] font-bold leading-tight ${
+                  i <= currentIndex ? "text-brown-900" : "text-brown-900/40"
+                }`}
+              >
+                {getStageLabel(fulfillment, s)}
+                {timestamp && (
+                  <div className="mt-0.5 text-[9px] font-semibold text-brown-900/50">
+                    {formatStageTime(timestamp)}
+                  </div>
+                )}
+              </div>
+            </Fragment>
+          );
+        })}
       </div>
     </div>
   );

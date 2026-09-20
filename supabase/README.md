@@ -71,3 +71,12 @@ Dashboard → **SQL Editor** → New query → paste the contents of
 
 This adds a `stage` column to the existing `orders` table. No Vercel
 configuration needed — it's used automatically once the column exists.
+
+## 6. Order stage timestamps
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/005_add_order_stage_history.sql` → **Run**.
+
+This adds a `stage_history` column recording when each step was reached,
+so the tracker can show a timestamp (Philippines time) per step, not just
+the current one.

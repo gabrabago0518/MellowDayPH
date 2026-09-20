@@ -40,17 +40,25 @@ export default function AdminOrdersPage() {
     const next = getNextStage(effectiveStage, order.method);
     if (!next) return;
 
-    setOrders((prev) => (prev ? prev.map((o) => (o.id === order.id ? { ...o, stage: next } : o)) : prev));
+    const stageHistory = { ...order.stage_history, [next]: new Date().toISOString() };
+
+    setOrders((prev) =>
+      prev ? prev.map((o) => (o.id === order.id ? { ...o, stage: next, stage_history: stageHistory } : o)) : prev,
+    );
 
     const res = await adminFetch(`/api/admin/orders/${order.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stage: next }),
+      body: JSON.stringify({ stage: next, stageHistory }),
     });
     if (!res.ok) {
       // Revert on failure.
       setOrders((prev) =>
-        prev ? prev.map((o) => (o.id === order.id ? { ...o, stage: order.stage } : o)) : prev,
+        prev
+          ? prev.map((o) =>
+              o.id === order.id ? { ...o, stage: order.stage, stage_history: order.stage_history } : o,
+            )
+          : prev,
       );
     }
   };

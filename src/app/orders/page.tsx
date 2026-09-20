@@ -46,11 +46,14 @@ export default function OrdersPage() {
   };
 
   const handleMarkDelivered = (order: Order) => {
-    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, stage: "delivered" } : o)));
+    const stageHistory = { ...order.stageHistory, delivered: new Date().toISOString() };
+    setOrders((prev) =>
+      prev.map((o) => (o.id === order.id ? { ...o, stage: "delivered", stageHistory } : o)),
+    );
     if (user) {
-      updateOrderStageRemote(order.id, "delivered");
+      updateOrderStageRemote(order.id, "delivered", stageHistory);
     } else {
-      updateOrderStage(order.id, "delivered");
+      updateOrderStage(order.id, "delivered", stageHistory);
     }
   };
 
@@ -201,6 +204,7 @@ export default function OrdersPage() {
                         fulfillment={order.fulfillment}
                         method={order.method}
                         stage={order.stage}
+                        stageHistory={order.stageHistory}
                       />
                       {getNextStage(effectiveStage, order.method) === "delivered" && (
                         <button

@@ -1,4 +1,4 @@
-import type { OrderItem, OrderStage, OrderStatus } from "./orders";
+import type { OrderItem, OrderStage, OrderStatus, StageHistory } from "./orders";
 
 export type AdminOrderRow = {
   id: string;
@@ -7,6 +7,7 @@ export type AdminOrderRow = {
   method: "gcash" | "cash";
   status: OrderStatus;
   stage: OrderStage | null;
+  stage_history: StageHistory | null;
   items: OrderItem[];
   total: number;
   fulfillment: "pickup" | "delivery";

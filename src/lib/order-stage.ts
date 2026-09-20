@@ -43,3 +43,16 @@ export function getNextStage(stage: OrderStage, method: "gcash" | "cash"): Order
   if (index === -1 || index === stages.length - 1) return null;
   return stages[index + 1];
 }
+
+// Always Philippines local time regardless of the viewer's own device/browser
+// timezone — the store operates in the Philippines, so a step's timestamp
+// should read the same for everyone looking at it.
+export function formatStageTime(iso: string): string {
+  return new Date(iso).toLocaleString("en-PH", {
+    timeZone: "Asia/Manila",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

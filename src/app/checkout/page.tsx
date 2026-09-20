@@ -79,12 +79,14 @@ export default function CheckoutPage() {
     setError(null);
 
     if (method === "cash") {
+      const now = new Date().toISOString();
       const order: Order = {
         id: `cash-${Date.now()}`,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
         method: "cash",
         status: "placed",
         stage: "confirmation",
+        stageHistory: { confirmation: now },
         items: items.map((item) => ({
           id: item.id,
           name: item.name,

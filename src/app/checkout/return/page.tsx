@@ -73,9 +73,12 @@ function ReturnContent() {
           setStatus("succeeded");
           if (id) {
             // GCash payment already confirms the order — skip the
-            // "Confirmation" step and go straight into prep.
-            updateOrderStatus(id, "paid", "preparing");
-            if (loggedIn) await updateOrderStatusRemote(id, "paid", "preparing");
+            // "Confirmation" step and go straight into prep. This is always
+            // the first stage ever recorded for a GCash order, so the
+            // history starts fresh rather than needing a merge.
+            const stageHistory = { preparing: new Date().toISOString() };
+            updateOrderStatus(id, "paid", "preparing", stageHistory);
+            if (loggedIn) await updateOrderStatusRemote(id, "paid", "preparing", stageHistory);
           }
           sessionStorage.removeItem("mellowday-payment");
           clearCart();

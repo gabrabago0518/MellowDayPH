@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CartModal from "@/components/CartModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { NCR_BARANGAYS, NCR_CITIES } from "@/lib/ncr-locations";
@@ -226,6 +227,7 @@ export default function SignupPage() {
         </div>
       </main>
       <Footer />
+      <CartModal />
     </div>
   );
 }

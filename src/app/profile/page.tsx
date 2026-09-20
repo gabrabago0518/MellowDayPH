@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import CartModal from "@/components/CartModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/AuthContext";
@@ -73,6 +74,7 @@ export default function ProfilePage() {
           <p className="text-sm text-brown-900/60">Loading…</p>
         </main>
         <Footer />
+        <CartModal />
       </div>
     );
   }
@@ -195,6 +197,7 @@ export default function ProfilePage() {
         </div>
       </main>
       <Footer />
+      <CartModal />
     </div>
   );
 }

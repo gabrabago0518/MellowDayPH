@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import CartModal from "@/components/CartModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -99,6 +100,7 @@ function LoginContent() {
         </div>
       </main>
       <Footer />
+      <CartModal />
     </div>
   );
 }

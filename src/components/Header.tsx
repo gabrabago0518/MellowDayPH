@@ -12,7 +12,6 @@ const NAV_LINKS = [
   { href: "/#about", label: "About" },
   { href: "/menu", label: "Menu" },
   { href: "/#visit", label: "Visit Us" },
-  { href: "/orders", label: "My Orders" },
 ];
 
 // Next.js's <Link> only scrolls to a hash target when the URL's hash
@@ -88,6 +87,13 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
           Hi, {displayName}
         </span>
         <Link
+          href="/orders"
+          onClick={onNavigate}
+          className="rounded-lg px-2 py-2.5 transition-colors hover:bg-brown-100/60"
+        >
+          My Orders
+        </Link>
+        <Link
           href="/profile"
           onClick={onNavigate}
           className="rounded-lg px-2 py-2.5 transition-colors hover:bg-brown-100/60"
@@ -114,6 +120,12 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
 
       <div className="invisible absolute right-0 top-full pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
         <div className="whitespace-nowrap rounded-2xl bg-cream p-1.5 shadow-lg shadow-brown-900/15">
+          <Link
+            href="/orders"
+            className="block w-full rounded-xl px-4 py-2 text-left text-sm font-semibold text-brown-900 transition-colors hover:bg-brown-100/60"
+          >
+            My Orders
+          </Link>
           <Link
             href="/profile"
             className="block w-full rounded-xl px-4 py-2 text-left text-sm font-semibold text-brown-900 transition-colors hover:bg-brown-100/60"

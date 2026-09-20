@@ -20,7 +20,7 @@ const DELIVERY_FEE_PESOS = 49;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { items, totalPrice, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -48,6 +48,12 @@ export default function CheckoutPage() {
       setBarangay((prev) => prev || (user.user_metadata?.default_barangay ?? ""));
     });
   }, [user]);
+
+  // Checkout requires an account so every order is tied to a customer —
+  // guests get bounced to login and land back here after signing in.
+  useEffect(() => {
+    if (!authLoading && !user) router.replace("/login?redirect=/checkout");
+  }, [authLoading, user, router]);
 
   const deliveryFee = fulfillment === "delivery" ? DELIVERY_FEE_PESOS : 0;
   const orderTotal = totalPrice + deliveryFee;
@@ -146,6 +152,18 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex min-h-screen flex-col bg-cream text-brown-900">
+        <Header />
+        <main className="flex flex-1 items-center justify-center px-6 py-32">
+          <p className="text-sm text-brown-900/60">Loading…</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (items.length === 0 && !cashConfirmed) {
     return (

@@ -1,10 +1,15 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
 
-export const ADMIN_SESSION_COOKIE = "admin_session";
-export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+export const CASHIER_SESSION_COOKIE = "cashier_session";
+export const CASHIER_SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
-export const isAdminSessionConfigured = Boolean(process.env.ADMIN_SESSION_SECRET);
+// Reuses ADMIN_SESSION_SECRET (same env var as admin-session.ts) so there's
+// one less secret to set up in Vercel — the embedded role: "cashier"
+// marker is what keeps a cashier's token from being accepted as an admin
+// session (or vice versa) if the cookie value were copied into the wrong
+// slot.
+export const isCashierSessionConfigured = Boolean(process.env.ADMIN_SESSION_SECRET);
 
 function getSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET;
@@ -12,27 +17,17 @@ function getSecret(): string {
   return secret;
 }
 
-export type AdminSessionPayload = { id: string; username: string };
+export type CashierSessionPayload = { id: string; username: string };
 
-// A minimal signed cookie token (payload + HMAC signature) rather than a
-// full JWT library — the admin dashboard only ever needs to trust its own
-// signature, never interop with anything else.
-//
-// The embedded role: "admin" marker matters even though this cookie has
-// its own name (admin_session) — cashier-session.ts signs with the same
-// ADMIN_SESSION_SECRET (same env var, simpler setup), so without a role
-// check baked into the payload itself, a cashier's token pasted into the
-// admin_session cookie slot would pass signature verification and grant
-// full admin access.
-export function createSessionToken(payload: AdminSessionPayload): string {
+export function createCashierSessionToken(payload: CashierSessionPayload): string {
   const body = Buffer.from(
-    JSON.stringify({ ...payload, role: "admin", exp: Date.now() + ADMIN_SESSION_MAX_AGE * 1000 }),
+    JSON.stringify({ ...payload, role: "cashier", exp: Date.now() + CASHIER_SESSION_MAX_AGE * 1000 }),
   ).toString("base64url");
   const signature = createHmac("sha256", getSecret()).update(body).digest("base64url");
   return `${body}.${signature}`;
 }
 
-export function verifySessionToken(token: string | undefined | null): AdminSessionPayload | null {
+export function verifyCashierSessionToken(token: string | undefined | null): CashierSessionPayload | null {
   if (!token) return null;
 
   const [body, signature] = token.split(".");
@@ -48,7 +43,7 @@ export function verifySessionToken(token: string | undefined | null): AdminSessi
   try {
     const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
     if (typeof payload.exp !== "number" || payload.exp < Date.now()) return null;
-    if (payload.role !== "admin") return null;
+    if (payload.role !== "cashier") return null;
     if (typeof payload.id !== "string" || typeof payload.username !== "string") return null;
     return { id: payload.id, username: payload.username };
   } catch {

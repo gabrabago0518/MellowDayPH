@@ -40,7 +40,9 @@ export type AdminOverview = {
 export type Employee = {
   id: string;
   full_name: string;
-  email: string;
+  date_hired: string | null;
+  contact_number: string | null;
+  username: string | null;
   role: string;
   status: "active" | "inactive";
   created_at: string;

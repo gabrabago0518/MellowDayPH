@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/adminApi";
-import { formatDate } from "@/lib/admin-format";
 import { IconPlus, IconTrash } from "@/components/icons";
 import type { Employee } from "@/lib/admin-types";
 
@@ -11,8 +10,11 @@ export default function AdminEmployeesPage() {
   const [error, setError] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [dateHired, setDateHired] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [role, setRole] = useState("Barista");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -55,7 +57,7 @@ export default function AdminEmployeesPage() {
     const res = await adminFetch("/api/admin/employees", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullName, email, role }),
+      body: JSON.stringify({ fullName, dateHired, contactNumber, role, username, password }),
     });
 
     setSaving(false);
@@ -66,8 +68,11 @@ export default function AdminEmployeesPage() {
     }
 
     setFullName("");
-    setEmail("");
+    setDateHired("");
+    setContactNumber("");
     setRole("Barista");
+    setUsername("");
+    setPassword("");
     setFormOpen(false);
     refresh();
   };
@@ -97,7 +102,10 @@ export default function AdminEmployeesPage() {
           <h1 className="font-heading text-3xl font-bold text-brown-900 sm:text-4xl">
             Employees
           </h1>
-          <p className="mt-2 text-sm text-brown-900/70">Staff who work at Mellow Day PH.</p>
+          <p className="mt-2 text-sm text-brown-900/70">
+            Staff who work at Mellow Day PH. Their username/password here is what they use to log
+            in to the Cashier Dashboard.
+          </p>
         </div>
         <button
           type="button"
@@ -124,13 +132,13 @@ export default function AdminEmployeesPage() {
               className="rounded-xl bg-brown-100/40 px-3 py-2.5 text-brown-900 outline-none focus:bg-white"
             />
           </label>
-          <label className="flex flex-1 min-w-[200px] flex-col gap-1.5 text-sm">
-            <span className="font-semibold text-brown-900/80">Email</span>
+          <label className="flex min-w-[160px] flex-col gap-1.5 text-sm">
+            <span className="font-semibold text-brown-900/80">Date hired</span>
             <input
-              type="email"
+              type="date"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={dateHired}
+              onChange={(e) => setDateHired(e.target.value)}
               className="rounded-xl bg-brown-100/40 px-3 py-2.5 text-brown-900 outline-none focus:bg-white"
             />
           </label>
@@ -146,6 +154,39 @@ export default function AdminEmployeesPage() {
               <option>Cashier</option>
               <option>Staff</option>
             </select>
+          </label>
+          <label className="flex min-w-[160px] flex-col gap-1.5 text-sm">
+            <span className="font-semibold text-brown-900/80">Contact number</span>
+            <input
+              type="tel"
+              required
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
+              placeholder="09XX XXX XXXX"
+              className="rounded-xl bg-brown-100/40 px-3 py-2.5 text-brown-900 outline-none focus:bg-white"
+            />
+          </label>
+          <label className="flex min-w-[160px] flex-col gap-1.5 text-sm">
+            <span className="font-semibold text-brown-900/80">Username</span>
+            <input
+              type="text"
+              required
+              autoComplete="off"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="rounded-xl bg-brown-100/40 px-3 py-2.5 text-brown-900 outline-none focus:bg-white"
+            />
+          </label>
+          <label className="flex min-w-[160px] flex-col gap-1.5 text-sm">
+            <span className="font-semibold text-brown-900/80">Password</span>
+            <input
+              type="password"
+              required
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded-xl bg-brown-100/40 px-3 py-2.5 text-brown-900 outline-none focus:bg-white"
+            />
           </label>
           <button
             type="submit"
@@ -168,14 +209,15 @@ export default function AdminEmployeesPage() {
 
       {employees && (
         <div className="mt-6 overflow-x-auto rounded-3xl bg-white/70 shadow-sm">
-          <table className="w-full min-w-[560px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="border-b border-brown-900/10 text-xs font-semibold uppercase tracking-wide text-brown-900/50">
                 <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Username</th>
+                <th className="px-4 py-3">Contact</th>
                 <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Date Hired</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Added</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -183,8 +225,18 @@ export default function AdminEmployeesPage() {
               {employees.map((employee) => (
                 <tr key={employee.id} className="border-b border-brown-900/5 last:border-0">
                   <td className="px-4 py-3 font-semibold text-brown-900">{employee.full_name}</td>
-                  <td className="px-4 py-3 text-brown-900/70">{employee.email}</td>
+                  <td className="px-4 py-3 text-brown-900/70">{employee.username ?? "—"}</td>
+                  <td className="px-4 py-3 text-brown-900/70">{employee.contact_number ?? "—"}</td>
                   <td className="px-4 py-3 text-brown-900/70">{employee.role}</td>
+                  <td className="px-4 py-3 text-brown-900/70">
+                    {employee.date_hired
+                      ? new Date(employee.date_hired).toLocaleDateString("en-PH", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "—"}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       type="button"
@@ -198,7 +250,6 @@ export default function AdminEmployeesPage() {
                       {employee.status === "active" ? "Active" : "Inactive"}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-brown-900/70">{formatDate(employee.created_at)}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
@@ -213,7 +264,7 @@ export default function AdminEmployeesPage() {
               ))}
               {employees.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-brown-900/60">
+                  <td colSpan={7} className="px-4 py-8 text-center text-brown-900/60">
                     No employees added yet.
                   </td>
                 </tr>

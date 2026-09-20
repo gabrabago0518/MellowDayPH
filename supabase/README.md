@@ -80,3 +80,25 @@ Dashboard → **SQL Editor** → New query → paste the contents of
 This adds a `stage_history` column recording when each step was reached,
 so the tracker can show a timestamp (Philippines time) per step, not just
 the current one.
+
+## 7. Cashier dashboard (/cashier)
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/006_add_staff_login.sql` → **Run**.
+
+This turns `staff` rows into real login accounts — adds date hired, contact
+number, username, and password columns. No new Vercel env vars needed: the
+cashier dashboard reuses `ADMIN_SESSION_SECRET` (already set up in step 3)
+to sign its own separate login cookie.
+
+Only an admin can create cashier accounts — go to `/admin` → **Employees**
+→ **Add Employee** and fill in Full Name, Date Hired, Role, Contact Number,
+plus a Username and Password for that employee to log in with at
+`/cashier/login`. Deactivating an employee (toggle their status to
+Inactive) also blocks them from logging in.
+
+The cashier dashboard has a single Orders tab: cashiers can advance an
+order through Confirmation → Preparing → Out for Delivery/Ready to Pick Up
+→ Delivered/Completed, print a kitchen ticket while an order is
+"Preparing", and print a receipt once it's "Out for Delivery"/"Ready to
+Pick Up".

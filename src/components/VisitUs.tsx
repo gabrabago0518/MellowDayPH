@@ -24,7 +24,7 @@ export default function VisitUs() {
             made just for you.
           </p>
           <a
-            href="https://www.google.com/maps/search/Mellow+Day+PH"
+            href="https://maps.app.goo.gl/dfmAK4aCdw8itYY2A"
             target="_blank"
             rel="noreferrer"
             className="relative mt-8 inline-block rounded-full bg-cream px-7 py-3.5 text-sm font-bold text-brown-900 shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"

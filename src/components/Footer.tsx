@@ -3,6 +3,7 @@ import { IconClock, IconFacebook, IconInstagram, IconPhone, IconPin } from "./ic
 
 const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61587137513893";
 const INSTAGRAM_URL = "https://www.instagram.com/mellowday.ph/";
+const MAP_URL = "https://maps.app.goo.gl/dfmAK4aCdw8itYY2A";
 
 export default function Footer({ className = "bg-green" }: { className?: string }) {
   return (
@@ -45,7 +46,9 @@ export default function Footer({ className = "bg-green" }: { className?: string 
             <div className="mt-2 flex flex-col items-center gap-2 text-sm text-brown-900/80 sm:items-start">
               <div className="flex items-center gap-2.5">
                 <IconPin className="h-4 w-4 shrink-0 text-brown-900/60" />
-                <span>Corner Saint Mary, Central Signal Village, Taguig City</span>
+                <a href={MAP_URL} target="_blank" rel="noreferrer" className="hover:underline">
+                  Corner Saint Mary, Central Signal Village, Taguig City
+                </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <IconClock className="h-4 w-4 shrink-0 text-brown-900/60" />

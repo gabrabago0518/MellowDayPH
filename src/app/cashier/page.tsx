@@ -222,6 +222,10 @@ export default function CashierPage() {
     const next = getNextStage(effectiveStage, order.method);
     if (!next) return;
 
+    if (!confirm(`Advance order #${order.id} to "${cashierStageLabel(order.fulfillment, next)}"?`)) {
+      return;
+    }
+
     const stageHistory = { ...order.stage_history, [next]: new Date().toISOString() };
 
     setOrders((prev) =>

@@ -193,7 +193,7 @@ export default function OrdersPage() {
                   <button
                     type="button"
                     onClick={() => toggleTracking(order.id)}
-                    className="text-sm font-semibold text-brown-900 hover:underline"
+                    className="w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream transition-transform hover:-translate-y-0.5 hover:bg-brown-800"
                   >
                     {trackedIds.has(order.id) ? "Hide Tracking" : "Track My Order"}
                   </button>

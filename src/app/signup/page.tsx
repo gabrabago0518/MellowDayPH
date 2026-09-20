@@ -7,9 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { NCR_BARANGAYS, NCR_CITIES } from "@/lib/ncr-locations";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
-
-const NAME_PATTERN = /^[A-Za-zÀ-ÖØ-öø-ÿ.'-]+(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ.'-]+)+$/;
-const PH_MOBILE_PATTERN = /^09\d{9}$/;
+import { NAME_PATTERN, PH_MOBILE_PATTERN } from "@/lib/validation";
 
 export default function SignupPage() {
   const router = useRouter();

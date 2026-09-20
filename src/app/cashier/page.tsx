@@ -8,6 +8,15 @@ import { formatDate } from "@/lib/admin-format";
 import { formatPrice } from "@/lib/menu-data";
 import { getEffectiveStage, getNextStage, getStageLabel } from "@/lib/order-stage";
 import type { AdminOrderRow } from "@/lib/admin-types";
+import type { OrderStage } from "@/lib/orders";
+
+const STAGE_FILTER_OPTIONS: { value: OrderStage | "all"; label: string }[] = [
+  { value: "all", label: "All statuses" },
+  { value: "confirmation", label: "Confirmed" },
+  { value: "preparing", label: "Preparing" },
+  { value: "out_for_delivery", label: "Out for Delivery / Ready to Pick Up" },
+  { value: "delivered", label: "Delivered / Completed" },
+];
 
 type GateState = "loading" | "unauthenticated" | "not-configured" | "error" | "ready";
 
@@ -102,6 +111,7 @@ export default function CashierPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [orders, setOrders] = useState<AdminOrderRow[] | null>(null);
   const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [stageFilter, setStageFilter] = useState<OrderStage | "all">("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -272,9 +282,30 @@ export default function CashierPage() {
 
         {!orders && !ordersError && <p className="mt-10 text-sm text-brown-900/60">Loading…</p>}
 
-        {orders && (
-          <div className="mt-6 flex flex-col gap-4">
-            {orders.map((order) => {
+        {orders && (() => {
+          const filteredOrders = orders.filter(
+            (order) =>
+              stageFilter === "all" || getEffectiveStage(order.stage, order.method) === stageFilter,
+          );
+
+          return (
+            <>
+              <div className="mt-6">
+                <select
+                  value={stageFilter}
+                  onChange={(e) => setStageFilter(e.target.value as OrderStage | "all")}
+                  className="rounded-full bg-white/70 px-4 py-2 text-sm text-brown-900 outline-none focus:bg-white"
+                >
+                  {STAGE_FILTER_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-4">
+                {filteredOrders.map((order) => {
               const effectiveStage = getEffectiveStage(order.stage, order.method);
               const nextStage = getNextStage(effectiveStage, order.method);
               const stageLabel = getStageLabel(order.fulfillment, effectiveStage);
@@ -344,14 +375,20 @@ export default function CashierPage() {
                   </div>
                 </div>
               );
-            })}
-            {orders.length === 0 && (
-              <div className="rounded-3xl bg-white/70 p-10 text-center shadow-sm">
-                <p className="text-sm text-brown-900/60">No orders to fulfill right now.</p>
+                })}
+                {filteredOrders.length === 0 && (
+                  <div className="rounded-3xl bg-white/70 p-10 text-center shadow-sm">
+                    <p className="text-sm text-brown-900/60">
+                      {orders.length === 0
+                        ? "No orders to fulfill right now."
+                        : "No orders match this filter."}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            </>
+          );
+        })()}
       </main>
     </div>
   );

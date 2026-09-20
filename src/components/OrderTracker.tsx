@@ -1,7 +1,14 @@
 import { Fragment } from "react";
-import Logo from "./Logo";
+import Image from "next/image";
 import { getEffectiveStage, getStageLabel, getVisibleStages } from "@/lib/order-stage";
 import type { OrderStage } from "@/lib/orders";
+
+const STAGE_ICON: Record<OrderStage, string> = {
+  confirmation: "/confirmation.webp",
+  preparing: "/preparing.webp",
+  out_for_delivery: "/out-for-delivery.webp",
+  delivered: "/delivered.webp",
+};
 
 export default function OrderTracker({
   fulfillment,
@@ -27,11 +34,17 @@ export default function OrderTracker({
               />
             )}
             <div
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${
-                i <= currentIndex ? "border-brown-900 bg-brown-900" : "border-brown-900/15 bg-white"
+              className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${
+                i <= currentIndex ? "border-brown-900 bg-brown-100/40" : "border-brown-900/15 bg-white"
               }`}
             >
-              <Logo className={`h-8 w-8 ${i <= currentIndex ? "" : "opacity-30 grayscale"}`} />
+              <Image
+                src={STAGE_ICON[s]}
+                alt={getStageLabel(fulfillment, s)}
+                fill
+                className={`rounded-full object-cover p-0.5 ${i <= currentIndex ? "" : "opacity-30 grayscale"}`}
+                sizes="56px"
+              />
             </div>
           </Fragment>
         ))}

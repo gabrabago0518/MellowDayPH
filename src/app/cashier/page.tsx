@@ -213,6 +213,7 @@ export default function CashierPage() {
   }, [state]);
 
   const handleLogout = async () => {
+    if (!confirm("Log out of the cashier dashboard?")) return;
     await cashierFetch("/api/cashier/auth/logout", { method: "POST" });
     router.replace("/cashier/login");
   };

@@ -69,6 +69,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   }, [state, router]);
 
   const handleLogout = async () => {
+    if (!confirm("Log out of the admin dashboard?")) return;
     await adminFetch("/api/admin/auth/logout", { method: "POST" });
     router.replace("/admin/login");
   };

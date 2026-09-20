@@ -58,6 +58,7 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
   const { clearCart } = useCart();
 
   const handleLogout = () => {
+    if (!confirm("Log out of your account?")) return;
     signOut();
     clearCart();
   };

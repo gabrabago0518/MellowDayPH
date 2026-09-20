@@ -11,12 +11,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
+import {
+  MAX_DELIVERY_FEE_PESOS,
+  MIN_DELIVERY_FEE_PESOS,
+  getDeliveryFeeForCity,
+} from "@/lib/delivery-fee";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { NCR_BARANGAYS, NCR_CITIES } from "@/lib/ncr-locations";
 import { saveOrder, saveOrderRemote, type Order } from "@/lib/orders";
 
 const MIN_AMOUNT_PESOS = 20;
-const DELIVERY_FEE_PESOS = 49;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -56,7 +60,7 @@ export default function CheckoutPage() {
     if (!authLoading && !user) router.replace("/login?redirect=/checkout");
   }, [authLoading, user, router]);
 
-  const deliveryFee = fulfillment === "delivery" ? DELIVERY_FEE_PESOS : 0;
+  const deliveryFee = fulfillment === "delivery" ? getDeliveryFeeForCity(city) : 0;
   const orderTotal = totalPrice + deliveryFee;
 
   const canSubmit =
@@ -309,10 +313,15 @@ export default function CheckoutPage() {
                       />
                       <div>
                         <span className="block text-sm font-bold text-brown-900">
-                          Delivery — {formatPrice(DELIVERY_FEE_PESOS)}
+                          Delivery —{" "}
+                          {city
+                            ? formatPrice(deliveryFee)
+                            : `${formatPrice(MIN_DELIVERY_FEE_PESOS)}–${formatPrice(MAX_DELIVERY_FEE_PESOS)}`}
                         </span>
                         <span className="text-xs text-brown-900/60">
-                          Estimated arrival in 45–60 minutes
+                          {city
+                            ? "Estimated arrival in 45–60 minutes"
+                            : "Fee depends on your city — estimated arrival in 45–60 minutes"}
                         </span>
                       </div>
                     </div>

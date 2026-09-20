@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
+import { getDeliveryFeeForCity } from "@/lib/delivery-fee";
 import { MENU_ITEMS } from "@/lib/menu-data";
 import { createGCashCheckout } from "@/lib/paymongo";
 
 const MIN_AMOUNT_PESOS = 20;
-export const DELIVERY_FEE_PESOS = 49;
 
 type CheckoutRequestItem = { id: string; quantity: number };
 type FulfillmentMethod = "pickup" | "delivery";
@@ -76,10 +76,10 @@ export async function POST(request: Request) {
     summaryLines.push(`${quantity}x ${menuItem.name}`);
   }
 
-  // Flat delivery fee is added server-side — never trust a client-sent fee.
-  if (method === "delivery") {
-    totalPesos += DELIVERY_FEE_PESOS;
-  }
+  // Delivery fee is computed server-side from the city — never trust a
+  // client-sent fee. Distance-tiered: farther cities cost more to deliver to.
+  const deliveryFee = method === "delivery" ? getDeliveryFeeForCity(city) : 0;
+  totalPesos += deliveryFee;
 
   if (totalPesos < MIN_AMOUNT_PESOS) {
     return NextResponse.json(
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
   const summaryText =
     method === "delivery"
-      ? `${summaryLines.join(", ")} + delivery (₱${DELIVERY_FEE_PESOS})`
+      ? `${summaryLines.join(", ")} + delivery (₱${deliveryFee})`
       : summaryLines.join(", ");
   const orderSummary = summaryText.slice(0, 480);
   const deliveryAddress =

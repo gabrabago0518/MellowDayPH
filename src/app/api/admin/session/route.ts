@@ -6,5 +6,5 @@ export async function GET(request: Request) {
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
-  return NextResponse.json({ email: auth.user.email });
+  return NextResponse.json({ id: auth.admin.id, username: auth.admin.username });
 }

@@ -44,10 +44,10 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
 }
 
 export default function AdminSidebar({
-  email,
+  username,
   onLogout,
 }: {
-  email?: string | null;
+  username?: string | null;
   onLogout: () => void;
 }) {
   const pathname = usePathname();
@@ -68,7 +68,7 @@ export default function AdminSidebar({
         </nav>
 
         <div className="border-t border-brown-900/10 pt-4">
-          {email && <p className="truncate px-2 text-xs text-brown-900/50">{email}</p>}
+          {username && <p className="truncate px-2 text-xs text-brown-900/50">{username}</p>}
           <button
             type="button"
             onClick={onLogout}

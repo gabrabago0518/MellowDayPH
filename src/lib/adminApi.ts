@@ -1,16 +1,7 @@
-import { supabase } from "./supabase";
-
-// Every /api/admin/* route re-verifies the caller server-side, so this just
-// attaches the current session's access token — it never grants access on
-// its own.
-export async function adminFetch(path: string, init?: RequestInit): Promise<Response> {
-  if (!supabase) throw new Error("Supabase isn't configured.");
-
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-
-  const headers = new Headers(init?.headers);
-  if (token) headers.set("Authorization", `Bearer ${token}`);
-
-  return fetch(path, { ...init, headers });
+// Admin auth is a signed httpOnly cookie (see admin-session.ts), sent
+// automatically by the browser on same-origin requests — nothing to attach
+// here. Every /api/admin/* route re-verifies that cookie server-side
+// regardless.
+export function adminFetch(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(path, { ...init, credentials: "same-origin" });
 }

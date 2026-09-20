@@ -8,7 +8,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-export const isAdminConfigured = Boolean(supabaseUrl && serviceRoleKey && process.env.ADMIN_EMAILS);
+export const isAdminConfigured = Boolean(supabaseUrl && serviceRoleKey);
 
 // Service-role client — bypasses Row Level Security entirely. Only ever
 // import this from a server-only file (API routes), never from anything
@@ -25,11 +25,4 @@ export function getSupabaseAdmin(): SupabaseClient {
     });
   }
   return cachedClient;
-}
-
-export function getAdminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
 }

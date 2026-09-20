@@ -1,35 +1,40 @@
 import "server-only";
-import type { User } from "@supabase/supabase-js";
-import { getAdminEmails, getSupabaseAdmin, isAdminConfigured } from "./supabase-admin";
+import { isAdminConfigured } from "./supabase-admin";
+import {
+  ADMIN_SESSION_COOKIE,
+  isAdminSessionConfigured,
+  verifySessionToken,
+  type AdminSessionPayload,
+} from "./admin-session";
 
 export type AdminAuthResult =
-  | { ok: true; user: User }
-  | { ok: false; status: 401 | 403 | 503; error: string };
+  | { ok: true; admin: AdminSessionPayload }
+  | { ok: false; status: 401 | 503; error: string };
 
-// Shared by every /api/admin/* route: verify the caller's Supabase session
-// token server-side (never trust a client-claimed identity), then check
-// their email against the server-only ADMIN_EMAILS allowlist.
+function getCookie(request: Request, name: string): string | undefined {
+  const header = request.headers.get("cookie");
+  if (!header) return undefined;
+  for (const part of header.split(";")) {
+    const [key, ...rest] = part.trim().split("=");
+    if (key === name) return rest.join("=");
+  }
+  return undefined;
+}
+
+// Shared by every /api/admin/* route: verify the signed admin_session
+// cookie server-side. Admin accounts live in their own `admins` table,
+// entirely separate from customer accounts in auth.users — there is no
+// email or allowlist involved here, just a valid signed session.
 export async function verifyAdmin(request: Request): Promise<AdminAuthResult> {
-  if (!isAdminConfigured) {
+  if (!isAdminConfigured || !isAdminSessionConfigured) {
     return { ok: false, status: 503, error: "Admin dashboard isn't configured yet on the server." };
   }
 
-  const authHeader = request.headers.get("authorization") ?? "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-  if (!token) {
+  const token = getCookie(request, ADMIN_SESSION_COOKIE);
+  const admin = verifySessionToken(token);
+  if (!admin) {
     return { ok: false, status: 401, error: "Not authenticated" };
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
-  const { data, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !data.user?.email) {
-    return { ok: false, status: 401, error: error?.message || "Not authenticated" };
-  }
-
-  const adminEmails = getAdminEmails();
-  if (!adminEmails.includes(data.user.email.toLowerCase())) {
-    return { ok: false, status: 403, error: "Not authorized" };
-  }
-
-  return { ok: true, user: data.user };
+  return { ok: true, admin };
 }

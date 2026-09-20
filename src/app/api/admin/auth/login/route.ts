@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
-import { getAdminEmails, getSupabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
+import { getSupabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
+import { verifyPassword } from "@/lib/admin-credentials";
+import {
+  ADMIN_SESSION_COOKIE,
+  ADMIN_SESSION_MAX_AGE,
+  createSessionToken,
+  isAdminSessionConfigured,
+} from "@/lib/admin-session";
 
 export async function POST(request: Request) {
-  if (!isAdminConfigured) {
+  if (!isAdminConfigured || !isAdminSessionConfigured) {
     return NextResponse.json(
       { error: "Admin dashboard isn't configured yet on the server." },
       { status: 503 },
@@ -17,26 +24,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Username and password are required." }, { status: 400 });
   }
 
-  // There's no separate username field anywhere — it's just the local part
-  // of one of the allowed admin emails, so logging in this way needs no new
-  // table or migration. (If ADMIN_EMAILS ever has two emails sharing a
-  // local part, the first match wins.)
-  const email = getAdminEmails().find((e) => e.split("@")[0] === username);
+  const { data: admin, error } = await getSupabaseAdmin()
+    .from("admins")
+    .select("id, username, password_hash")
+    .eq("username", username)
+    .maybeSingle();
 
-  // Same generic error either way — never reveal whether the username
-  // matched an admin email or not.
-  if (!email) {
+  // Same generic error whether the username doesn't exist or the password
+  // is wrong — never reveal which.
+  if (error || !admin || !verifyPassword(password, admin.password_hash)) {
     return NextResponse.json({ error: "Invalid username or password." }, { status: 401 });
   }
 
-  const { data, error } = await getSupabaseAdmin().auth.signInWithPassword({ email, password });
+  const token = createSessionToken({ id: admin.id, username: admin.username });
 
-  if (error || !data.session) {
-    return NextResponse.json({ error: "Invalid username or password." }, { status: 401 });
-  }
-
-  return NextResponse.json({
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
+  const res = NextResponse.json({ username: admin.username });
+  res.cookies.set(ADMIN_SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: ADMIN_SESSION_MAX_AGE,
   });
+  return res;
 }

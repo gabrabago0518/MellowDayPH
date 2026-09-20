@@ -43,3 +43,10 @@ export type Employee = {
   status: "active" | "inactive";
   created_at: string;
 };
+
+export type Admin = {
+  id: string;
+  username: string;
+  full_name: string | null;
+  created_at: string;
+};

@@ -12,11 +12,19 @@ import type { OrderStage } from "@/lib/orders";
 
 const STAGE_FILTER_OPTIONS: { value: OrderStage | "all"; label: string }[] = [
   { value: "all", label: "All statuses" },
-  { value: "confirmation", label: "Confirmed" },
+  { value: "confirmation", label: "Waiting for Confirmation" },
   { value: "preparing", label: "Preparing" },
   { value: "out_for_delivery", label: "Out for Delivery / Ready to Pick Up" },
   { value: "delivered", label: "Delivered / Completed" },
 ];
+
+// Cashier-only relabel of the "Confirmed" stage — customers and admins still
+// see "Confirmed" (getStageLabel), but cashiers need to know it's not yet
+// acted on.
+function cashierStageLabel(fulfillment: "pickup" | "delivery", stage: OrderStage): string {
+  if (stage === "confirmation") return "Waiting for Confirmation";
+  return getStageLabel(fulfillment, stage);
+}
 
 type GateState = "loading" | "unauthenticated" | "not-configured" | "error" | "ready";
 
@@ -318,7 +326,7 @@ export default function CashierPage() {
                 {filteredOrders.map((order) => {
               const effectiveStage = getEffectiveStage(order.stage, order.method);
               const nextStage = getNextStage(effectiveStage, order.method);
-              const stageLabel = getStageLabel(order.fulfillment, effectiveStage);
+              const stageLabel = cashierStageLabel(order.fulfillment, effectiveStage);
 
               return (
                 <div key={order.id} className="rounded-3xl bg-white/70 p-6 shadow-sm">
@@ -366,7 +374,7 @@ export default function CashierPage() {
                         onClick={() => handleAdvance(order)}
                         className="rounded-full bg-brown-900 px-4 py-2 text-xs font-bold text-cream hover:bg-brown-800"
                       >
-                        Advance to {getStageLabel(order.fulfillment, nextStage)}
+                        Advance to {cashierStageLabel(order.fulfillment, nextStage)}
                       </button>
                     )}
                     {effectiveStage === "preparing" && (

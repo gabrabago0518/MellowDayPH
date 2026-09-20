@@ -40,7 +40,7 @@ export default function Footer({ className = "bg-green" }: { className?: string 
             </p>
           </div>
 
-          <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+          <div className="flex flex-col items-center text-center sm:items-start sm:justify-end sm:text-left">
             <h3 className="font-heading text-lg font-bold text-brown-900">Contact Us</h3>
             <div className="mt-3 flex flex-col items-center gap-2.5 text-sm text-brown-900/80 sm:items-start">
               <div className="flex items-center gap-2.5">

@@ -7,7 +7,7 @@ const MAP_URL = "https://maps.app.goo.gl/dfmAK4aCdw8itYY2A";
 
 export default function Footer({ className = "bg-green" }: { className?: string }) {
   return (
-    <footer className={`mt-auto px-6 py-7 sm:px-10 md:py-9 ${className}`}>
+    <footer className={`mt-auto px-6 pb-7 pt-3 sm:px-10 md:pb-9 md:pt-4 ${className}`}>
       <div className="mx-auto max-w-4xl">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="flex flex-col items-center text-center sm:items-start sm:text-left">

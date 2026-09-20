@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useConfirm } from "./ConfirmDialog";
 import Logo from "./Logo";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
@@ -56,11 +57,13 @@ function CartButton({ className = "" }: { className?: string }) {
 function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const { user, signOut } = useAuth();
   const { clearCart } = useCart();
+  const { confirm, ConfirmDialog } = useConfirm();
 
-  const handleLogout = () => {
-    if (!confirm("Log out of your account?")) return;
+  const handleLogout = async () => {
+    if (!(await confirm("Log out of your account?"))) return false;
     signOut();
     clearCart();
+    return true;
   };
 
   if (!user) {
@@ -103,14 +106,14 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
         </Link>
         <button
           type="button"
-          onClick={() => {
-            handleLogout();
-            onNavigate?.();
+          onClick={async () => {
+            if (await handleLogout()) onNavigate?.();
           }}
           className="rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-brown-100/60"
         >
           Log Out
         </button>
+        {ConfirmDialog}
       </div>
     );
   }
@@ -142,6 +145,7 @@ function AccountLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
           </button>
         </div>
       </div>
+      {ConfirmDialog}
     </div>
   );
 }

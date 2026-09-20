@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import AdminSidebar from "@/components/AdminSidebar";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { adminFetch } from "@/lib/adminApi";
 
 type GateState = "loading" | "unauthenticated" | "not-configured" | "error" | "ready";
@@ -23,6 +24,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   const [state, setState] = useState<GateState>("loading");
   const [username, setUsername] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const { confirm, ConfirmDialog } = useConfirm();
 
   useEffect(() => {
     let cancelled = false;
@@ -69,7 +71,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   }, [state, router]);
 
   const handleLogout = async () => {
-    if (!confirm("Log out of the admin dashboard?")) return;
+    if (!(await confirm("Log out of the admin dashboard?"))) return;
     await adminFetch("/api/admin/auth/logout", { method: "POST" });
     router.replace("/admin/login");
   };
@@ -103,6 +105,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
       <main className="flex-1 px-6 py-8 md:px-10 md:py-12">
         <div className="mx-auto max-w-6xl">{children}</div>
       </main>
+      {ConfirmDialog}
     </div>
   );
 }

@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/adminApi";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { IconPlus, IconTrash } from "@/components/icons";
 import type { Employee } from "@/lib/admin-types";
 
 export default function AdminEmployeesPage() {
+  const { confirm, ConfirmDialog } = useConfirm();
   const [employees, setEmployees] = useState<Employee[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -90,7 +92,9 @@ export default function AdminEmployeesPage() {
   };
 
   const handleRemove = async (employee: Employee) => {
-    if (!confirm(`Remove ${employee.full_name} from the staff list?`)) return;
+    if (!(await confirm({ message: `Remove ${employee.full_name} from the staff list?`, danger: true }))) {
+      return;
+    }
     setEmployees((prev) => (prev ? prev.filter((e) => e.id !== employee.id) : prev));
     await adminFetch(`/api/admin/employees/${employee.id}`, { method: "DELETE" });
   };
@@ -273,6 +277,7 @@ export default function AdminEmployeesPage() {
           </table>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/ConfirmDialog";
 import Logo from "@/components/Logo";
 import { cashierFetch } from "@/lib/cashierApi";
 import { formatDate } from "@/lib/admin-format";
@@ -147,6 +148,7 @@ export default function CashierPage() {
   const [orders, setOrders] = useState<AdminOrderRow[] | null>(null);
   const [ordersError, setOrdersError] = useState<string | null>(null);
   const [stageFilter, setStageFilter] = useState<OrderStage | "all">("all");
+  const { confirm, ConfirmDialog } = useConfirm();
 
   useEffect(() => {
     let cancelled = false;
@@ -213,7 +215,7 @@ export default function CashierPage() {
   }, [state]);
 
   const handleLogout = async () => {
-    if (!confirm("Log out of the cashier dashboard?")) return;
+    if (!(await confirm("Log out of the cashier dashboard?"))) return;
     await cashierFetch("/api/cashier/auth/logout", { method: "POST" });
     router.replace("/cashier/login");
   };
@@ -223,9 +225,10 @@ export default function CashierPage() {
     const next = getNextStage(effectiveStage, order.method);
     if (!next) return;
 
-    if (!confirm(`Advance order #${order.id} to "${cashierStageLabel(order.fulfillment, next)}"?`)) {
-      return;
-    }
+    const confirmed = await confirm(
+      `Advance order #${order.id} to "${cashierStageLabel(order.fulfillment, next)}"?`,
+    );
+    if (!confirmed) return;
 
     const stageHistory = { ...order.stage_history, [next]: new Date().toISOString() };
 
@@ -440,6 +443,7 @@ export default function CashierPage() {
           );
         })()}
       </main>
+      {ConfirmDialog}
     </div>
   );
 }

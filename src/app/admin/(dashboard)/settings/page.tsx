@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/adminApi";
 import { formatDate } from "@/lib/admin-format";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { IconPlus, IconTrash } from "@/components/icons";
 import type { Admin } from "@/lib/admin-types";
 
 export default function AdminSettingsPage() {
+  const { confirm, ConfirmDialog } = useConfirm();
   const [currentAdminId, setCurrentAdminId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [admins, setAdmins] = useState<Admin[] | null>(null);
@@ -78,7 +80,9 @@ export default function AdminSettingsPage() {
   };
 
   const handleRemove = async (admin: Admin) => {
-    if (!confirm(`Remove admin account "${admin.username}"?`)) return;
+    if (!(await confirm({ message: `Remove admin account "${admin.username}"?`, danger: true }))) {
+      return;
+    }
     setAdmins((prev) => (prev ? prev.filter((a) => a.id !== admin.id) : prev));
     await adminFetch(`/api/admin/admins/${admin.id}`, { method: "DELETE" });
   };
@@ -203,6 +207,7 @@ export default function AdminSettingsPage() {
           rather than a database, so they aren&apos;t editable from here yet.
         </p>
       </section>
+      {ConfirmDialog}
     </div>
   );
 }

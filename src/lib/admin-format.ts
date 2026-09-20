@@ -1,7 +1,7 @@
 import type { OrderStatus } from "./orders";
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
-  paid: "Paid",
+  paid: "Preparing",
   placed: "Placed (Cash)",
   pending: "Pending",
   failed: "Failed",

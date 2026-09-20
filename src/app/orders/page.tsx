@@ -13,7 +13,7 @@ import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { getOrders, getOrdersRemote, type Order, type OrderStatus } from "@/lib/orders";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
-  paid: "Paid",
+  paid: "Preparing",
   placed: "Placed — pay on pickup",
   pending: "Payment pending",
   failed: "Payment failed",

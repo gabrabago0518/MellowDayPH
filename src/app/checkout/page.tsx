@@ -140,7 +140,10 @@ export default function CheckoutPage() {
         phone,
       };
       saveOrder(order);
-      if (user) saveOrderRemote(order, user.id);
+      // Must finish before navigating away to GCash below — an unawaited
+      // write here can get cancelled by the immediate redirect, leaving no
+      // row for checkout/return to later update to "paid".
+      if (user) await saveOrderRemote(order, user.id);
 
       sessionStorage.setItem(
         "mellowday-payment",

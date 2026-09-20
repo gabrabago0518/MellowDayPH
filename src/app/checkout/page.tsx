@@ -43,6 +43,7 @@ export default function CheckoutPage() {
     queueMicrotask(() => {
       setName(user.user_metadata?.full_name ?? "");
       setPhone(user.user_metadata?.phone ?? "");
+      setEmail(user.email ?? "");
       setStreet((prev) => prev || (user.user_metadata?.default_street ?? ""));
       setCity((prev) => prev || (user.user_metadata?.default_city ?? ""));
       setBarangay((prev) => prev || (user.user_metadata?.default_barangay ?? ""));
@@ -62,6 +63,7 @@ export default function CheckoutPage() {
     items.length > 0 &&
     name.trim() &&
     phone.trim() &&
+    email.trim() &&
     !loading &&
     (fulfillment === "pickup" || (street.trim() && city && barangay));
 
@@ -428,15 +430,17 @@ export default function CheckoutPage() {
                   </label>
                 </div>
                 <label className="mt-4 flex flex-col gap-1.5 text-sm">
-                  <span className="font-semibold text-brown-900/80">
-                    Email (optional, for receipt)
-                  </span>
+                  <span className="font-semibold text-brown-900/80">Email</span>
                   <input
                     type="email"
+                    required
+                    readOnly={Boolean(user)}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@email.com"
-                    className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
+                    className={`rounded-2xl px-4 py-3 text-brown-900 outline-none ${
+                      user ? "bg-brown-100/60 text-brown-900/70" : "bg-brown-100/40 focus:bg-white"
+                    }`}
                   />
                 </label>
               </section>

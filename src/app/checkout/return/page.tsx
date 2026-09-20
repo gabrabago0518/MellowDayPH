@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuth } from "@/lib/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { useCart } from "@/lib/CartContext";
 import { formatPrice } from "@/lib/menu-data";
 import { updateOrderStatus, updateOrderStatusRemote } from "@/lib/orders";
@@ -14,7 +14,6 @@ type Status = "checking" | "succeeded" | "failed" | "pending" | "error";
 
 function ReturnContent() {
   const searchParams = useSearchParams();
-  const { user } = useAuth();
   const { clearCart } = useCart();
   const [status, setStatus] = useState<Status>("checking");
   const [orderSummary, setOrderSummary] = useState("");
@@ -54,10 +53,21 @@ function ReturnContent() {
         if (!res.ok) throw new Error(data.error || "Could not check payment status");
         return data as { status: string; amount: number; metadata: Record<string, string> };
       })
-      .then((data) => {
+      .then(async (data) => {
         setAmount(data.amount / 100);
         setOrderSummary(data.metadata?.order_summary ?? "");
         setDeliveryAddress(data.metadata?.delivery_address ?? "");
+
+        // Read the session directly rather than trusting AuthContext's
+        // `user` — that context is still loading at this point (it's an
+        // async call that hasn't resolved yet), so relying on it here
+        // meant this remote write was almost always silently skipped for
+        // logged-in customers, leaving their order stuck at "pending"
+        // forever even after a real successful payment.
+        const { data: sessionData } = supabase
+          ? await supabase.auth.getSession()
+          : { data: { session: null } };
+        const loggedIn = Boolean(sessionData.session);
 
         if (data.status === "succeeded") {
           setStatus("succeeded");
@@ -65,7 +75,7 @@ function ReturnContent() {
             // GCash payment already confirms the order — skip the
             // "Confirmation" step and go straight into prep.
             updateOrderStatus(id, "paid", "preparing");
-            if (user) updateOrderStatusRemote(id, "paid", "preparing");
+            if (loggedIn) await updateOrderStatusRemote(id, "paid", "preparing");
           }
           sessionStorage.removeItem("mellowday-payment");
           clearCart();
@@ -75,7 +85,7 @@ function ReturnContent() {
           setStatus("failed");
           if (id) {
             updateOrderStatus(id, "failed");
-            if (user) updateOrderStatusRemote(id, "failed");
+            if (loggedIn) await updateOrderStatusRemote(id, "failed");
           }
         }
       })

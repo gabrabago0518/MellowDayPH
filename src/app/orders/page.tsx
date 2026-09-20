@@ -11,29 +11,14 @@ import Footer from "@/components/Footer";
 import OrderTracker from "@/components/OrderTracker";
 import { useAuth } from "@/lib/AuthContext";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
-import { getEffectiveStage, getNextStage } from "@/lib/order-stage";
+import { getEffectiveStage, getNextStage, getStageLabel } from "@/lib/order-stage";
 import {
   getOrders,
   getOrdersRemote,
   updateOrderStage,
   updateOrderStageRemote,
   type Order,
-  type OrderStatus,
 } from "@/lib/orders";
-
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  paid: "Preparing",
-  placed: "Placed — pay on pickup",
-  pending: "Payment pending",
-  failed: "Payment failed",
-};
-
-const STATUS_STYLE: Record<OrderStatus, string> = {
-  paid: "bg-green/40 text-brown-900",
-  placed: "bg-green/40 text-brown-900",
-  pending: "bg-gold/30 text-brown-900",
-  failed: "bg-red-100 text-red-700",
-};
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("en-PH", {
@@ -95,6 +80,11 @@ export default function OrdersPage() {
     };
   }, [user, authLoading]);
 
+  // Only orders that were actually confirmed (paid, or cash accepted) get a
+  // fulfillment stage at all — an abandoned or failed GCash attempt never
+  // became a real order, so it doesn't belong in the customer-facing list.
+  const visibleOrders = orders.filter((o) => o.status === "paid" || o.status === "placed");
+
   return (
     <div className="flex min-h-screen flex-col bg-cream text-brown-900">
       <Header />
@@ -118,7 +108,7 @@ export default function OrdersPage() {
             </Link>
           )}
 
-          {hydrated && orders.length === 0 && (
+          {hydrated && visibleOrders.length === 0 && (
             <div className="mt-10 rounded-3xl bg-white/70 p-10 text-center shadow-sm">
               <p className="text-sm text-brown-900/70">
                 You haven&apos;t placed any orders yet.
@@ -133,7 +123,10 @@ export default function OrdersPage() {
           )}
 
           <div className="mt-8 flex flex-col gap-5">
-            {orders.map((order) => (
+            {visibleOrders.map((order) => {
+              const effectiveStage = getEffectiveStage(order.stage, order.method);
+
+              return (
               <div key={order.id} className="rounded-3xl bg-white/70 p-6 shadow-sm sm:p-7">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -145,10 +138,8 @@ export default function OrdersPage() {
                       {order.method === "gcash" ? "GCash" : "Cash"}
                     </p>
                   </div>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLE[order.status]}`}
-                  >
-                    {STATUS_LABEL[order.status]}
+                  <span className="rounded-full bg-green/40 px-3 py-1 text-xs font-bold text-brown-900">
+                    {getStageLabel(order.fulfillment, effectiveStage)}
                   </span>
                 </div>
 
@@ -195,41 +186,37 @@ export default function OrdersPage() {
                   <span>{formatPrice(order.total)}</span>
                 </div>
 
-                {(order.status === "paid" || order.status === "placed") && (
-                  <div className="mt-4 border-t border-brown-900/10 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => toggleTracking(order.id)}
-                      className="text-sm font-semibold text-brown-900 hover:underline"
-                    >
-                      {trackedIds.has(order.id) ? "Hide Tracking" : "Track My Order"}
-                    </button>
+                <div className="mt-4 border-t border-brown-900/10 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleTracking(order.id)}
+                    className="text-sm font-semibold text-brown-900 hover:underline"
+                  >
+                    {trackedIds.has(order.id) ? "Hide Tracking" : "Track My Order"}
+                  </button>
 
-                    {trackedIds.has(order.id) && (
-                      <div className="mt-5">
-                        <OrderTracker
-                          fulfillment={order.fulfillment}
-                          method={order.method}
-                          stage={order.stage}
-                        />
-                        {getNextStage(getEffectiveStage(order.stage, order.method), order.method) ===
-                          "delivered" && (
-                          <button
-                            type="button"
-                            onClick={() => handleMarkDelivered(order)}
-                            className="mt-5 w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
-                          >
-                            {order.fulfillment === "pickup"
-                              ? "Mark as Picked Up"
-                              : "Mark as Delivered"}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
+                  {trackedIds.has(order.id) && (
+                    <div className="mt-5">
+                      <OrderTracker
+                        fulfillment={order.fulfillment}
+                        method={order.method}
+                        stage={order.stage}
+                      />
+                      {getNextStage(effectiveStage, order.method) === "delivered" && (
+                        <button
+                          type="button"
+                          onClick={() => handleMarkDelivered(order)}
+                          className="mt-5 w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
+                        >
+                          {order.fulfillment === "pickup" ? "Mark as Picked Up" : "Mark as Delivered"}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </main>

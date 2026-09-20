@@ -213,7 +213,9 @@ export default function CheckoutPage() {
               Order placed! 🎉
             </h1>
             <p className="mt-2 text-sm text-brown-900/70">
-              Show this summary and pay cash when you pick up.
+              {fulfillment === "delivery"
+                ? "Show this summary and pay cash when your order arrives."
+                : "Show this summary and pay cash when you pick up."}
             </p>
             <pre className="mt-5 whitespace-pre-wrap rounded-2xl bg-green/20 p-4 text-left font-body text-sm text-brown-900">
               {orderSummary}
@@ -499,10 +501,12 @@ export default function CheckoutPage() {
                       />
                       <div>
                         <span className="block text-sm font-bold text-brown-900">
-                          Cash on Pickup
+                          {fulfillment === "delivery" ? "Cash on Delivery" : "Cash on Pickup"}
                         </span>
                         <span className="text-xs text-brown-900/60">
-                          Pay in person when you pick up your order
+                          {fulfillment === "delivery"
+                            ? "Pay in cash when your order arrives"
+                            : "Pay in person when you pick up your order"}
                         </span>
                       </div>
                     </div>

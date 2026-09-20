@@ -9,11 +9,17 @@ export type OrderItem = {
 
 export type OrderStatus = "pending" | "paid" | "placed" | "failed";
 
+// Fulfillment progress, separate from payment status — tracked once an
+// order is confirmed (paid or placed for cash-on-pickup/delivery). Null
+// means tracking hasn't started yet (e.g. a GCash order still pending).
+export type OrderStage = "confirmation" | "preparing" | "out_for_delivery" | "delivered";
+
 export type Order = {
   id: string;
   createdAt: string;
   method: "gcash" | "cash";
   status: OrderStatus;
+  stage?: OrderStage | null;
   items: OrderItem[];
   total: number;
   fulfillment: "pickup" | "delivery";
@@ -52,11 +58,20 @@ export function saveOrder(order: Order) {
   persist(orders);
 }
 
-export function updateOrderStatus(id: string, status: OrderStatus) {
+export function updateOrderStatus(id: string, status: OrderStatus, stage?: OrderStage) {
   const orders = getOrders();
   const index = orders.findIndex((o) => o.id === id);
   if (index >= 0) {
-    orders[index] = { ...orders[index], status };
+    orders[index] = { ...orders[index], status, ...(stage ? { stage } : {}) };
+    persist(orders);
+  }
+}
+
+export function updateOrderStage(id: string, stage: OrderStage) {
+  const orders = getOrders();
+  const index = orders.findIndex((o) => o.id === id);
+  if (index >= 0) {
+    orders[index] = { ...orders[index], stage };
     persist(orders);
   }
 }
@@ -71,6 +86,7 @@ type OrderRow = {
   created_at: string;
   method: "gcash" | "cash";
   status: OrderStatus;
+  stage: OrderStage | null;
   items: OrderItem[];
   total: number;
   fulfillment: "pickup" | "delivery";
@@ -85,6 +101,7 @@ function rowToOrder(row: OrderRow): Order {
     createdAt: row.created_at,
     method: row.method,
     status: row.status,
+    stage: row.stage,
     items: row.items,
     total: Number(row.total),
     fulfillment: row.fulfillment,
@@ -102,6 +119,7 @@ export async function saveOrderRemote(order: Order, userId: string): Promise<voi
     created_at: order.createdAt,
     method: order.method,
     status: order.status,
+    stage: order.stage ?? null,
     items: order.items,
     total: order.total,
     fulfillment: order.fulfillment,
@@ -111,9 +129,21 @@ export async function saveOrderRemote(order: Order, userId: string): Promise<voi
   });
 }
 
-export async function updateOrderStatusRemote(id: string, status: OrderStatus): Promise<void> {
+export async function updateOrderStatusRemote(
+  id: string,
+  status: OrderStatus,
+  stage?: OrderStage,
+): Promise<void> {
   if (!supabase) return;
-  await supabase.from("orders").update({ status }).eq("id", id);
+  await supabase
+    .from("orders")
+    .update({ status, ...(stage ? { stage } : {}) })
+    .eq("id", id);
+}
+
+export async function updateOrderStageRemote(id: string, stage: OrderStage): Promise<void> {
+  if (!supabase) return;
+  await supabase.from("orders").update({ stage }).eq("id", id);
 }
 
 export async function getOrdersRemote(userId: string): Promise<Order[]> {

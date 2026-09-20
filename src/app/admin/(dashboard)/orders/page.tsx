@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/adminApi";
 import { formatPrice } from "@/lib/menu-data";
 import { formatDate, STATUS_LABEL, STATUS_STYLE } from "@/lib/admin-format";
+import { getEffectiveStage, getNextStage, getStageLabel } from "@/lib/order-stage";
 import type { AdminOrderRow } from "@/lib/admin-types";
 import type { OrderStatus } from "@/lib/orders";
 
@@ -33,6 +34,26 @@ export default function AdminOrdersPage() {
       cancelled = true;
     };
   }, []);
+
+  const handleAdvance = async (order: AdminOrderRow) => {
+    const effectiveStage = getEffectiveStage(order.stage, order.method);
+    const next = getNextStage(effectiveStage, order.method);
+    if (!next) return;
+
+    setOrders((prev) => (prev ? prev.map((o) => (o.id === order.id ? { ...o, stage: next } : o)) : prev));
+
+    const res = await adminFetch(`/api/admin/orders/${order.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stage: next }),
+    });
+    if (!res.ok) {
+      // Revert on failure.
+      setOrders((prev) =>
+        prev ? prev.map((o) => (o.id === order.id ? { ...o, stage: order.stage } : o)) : prev,
+      );
+    }
+  };
 
   const filteredOrders = (orders ?? []).filter((order) => {
     if (statusFilter !== "all" && order.status !== statusFilter) return false;
@@ -84,7 +105,7 @@ export default function AdminOrdersPage() {
           </div>
 
           <div className="mt-4 overflow-x-auto rounded-3xl bg-white/70 shadow-sm">
-            <table className="w-full min-w-[720px] text-left text-sm">
+            <table className="w-full min-w-[860px] text-left text-sm">
               <thead>
                 <tr className="border-b border-brown-900/10 text-xs font-semibold uppercase tracking-wide text-brown-900/50">
                   <th className="px-4 py-3">Date</th>
@@ -93,41 +114,70 @@ export default function AdminOrdersPage() {
                   <th className="px-4 py-3">Method</th>
                   <th className="px-4 py-3">Fulfillment</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Stage</th>
                   <th className="px-4 py-3 text-right">Total</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-brown-900/5 last:border-0">
-                    <td className="px-4 py-3 text-brown-900/70">{formatDate(order.created_at)}</td>
-                    <td className="px-4 py-3">
-                      <p className="font-semibold text-brown-900">{order.name}</p>
-                      <p className="text-xs text-brown-900/60">{order.phone}</p>
-                    </td>
-                    <td className="px-4 py-3 text-brown-900/70">
-                      {order.items.reduce((sum, i) => sum + i.quantity, 0)} item(s)
-                    </td>
-                    <td className="px-4 py-3 text-brown-900/70">
-                      {order.method === "gcash" ? "GCash" : "Cash"}
-                    </td>
-                    <td className="px-4 py-3 text-brown-900/70">
-                      {order.fulfillment === "delivery" ? "Delivery" : "Pickup"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_STYLE[order.status]}`}
-                      >
-                        {STATUS_LABEL[order.status]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-brown-900">
-                      {formatPrice(order.total)}
-                    </td>
-                  </tr>
-                ))}
+                {filteredOrders.map((order) => {
+                  const trackable = order.status === "paid" || order.status === "placed";
+                  const effectiveStage = trackable
+                    ? getEffectiveStage(order.stage, order.method)
+                    : null;
+                  const nextStage = effectiveStage ? getNextStage(effectiveStage, order.method) : null;
+
+                  return (
+                    <tr key={order.id} className="border-b border-brown-900/5 last:border-0">
+                      <td className="px-4 py-3 text-brown-900/70">{formatDate(order.created_at)}</td>
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-brown-900">{order.name}</p>
+                        <p className="text-xs text-brown-900/60">{order.phone}</p>
+                      </td>
+                      <td className="px-4 py-3 text-brown-900/70">
+                        {order.items.reduce((sum, i) => sum + i.quantity, 0)} item(s)
+                      </td>
+                      <td className="px-4 py-3 text-brown-900/70">
+                        {order.method === "gcash" ? "GCash" : "Cash"}
+                      </td>
+                      <td className="px-4 py-3 text-brown-900/70">
+                        {order.fulfillment === "delivery" ? "Delivery" : "Pickup"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_STYLE[order.status]}`}
+                        >
+                          {STATUS_LABEL[order.status]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-brown-900/70">
+                        {effectiveStage ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-brown-900">
+                              {getStageLabel(order.fulfillment, effectiveStage)}
+                            </span>
+                            {nextStage && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvance(order)}
+                                className="rounded-full bg-brown-900 px-2.5 py-1 text-[11px] font-bold text-cream hover:bg-brown-800"
+                              >
+                                Advance
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold text-brown-900">
+                        {formatPrice(order.total)}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {filteredOrders.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-brown-900/60">
+                    <td colSpan={8} className="px-4 py-8 text-center text-brown-900/60">
                       No orders match.
                     </td>
                   </tr>

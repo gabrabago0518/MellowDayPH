@@ -62,8 +62,10 @@ function ReturnContent() {
         if (data.status === "succeeded") {
           setStatus("succeeded");
           if (id) {
-            updateOrderStatus(id, "paid");
-            if (user) updateOrderStatusRemote(id, "paid");
+            // GCash payment already confirms the order — skip the
+            // "Confirmation" step and go straight into prep.
+            updateOrderStatus(id, "paid", "preparing");
+            if (user) updateOrderStatusRemote(id, "paid", "preparing");
           }
           sessionStorage.removeItem("mellowday-payment");
           clearCart();

@@ -63,3 +63,11 @@ This creates the `staff` table the Employees tab reads and writes (a staff
 directory — separate from admin login accounts). It's only ever accessed
 through the service-role admin API, so no further Vercel configuration is
 needed beyond step 3 above.
+
+## 5. Order tracking (Confirmation → Preparing → Out for Delivery → Delivered)
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/004_add_order_stage.sql` → **Run**.
+
+This adds a `stage` column to the existing `orders` table. No Vercel
+configuration needed — it's used automatically once the column exists.

@@ -8,9 +8,18 @@ import CupIllustration from "@/components/CupIllustration";
 import FoodIllustration from "@/components/FoodIllustration";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import OrderTracker from "@/components/OrderTracker";
 import { useAuth } from "@/lib/AuthContext";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
-import { getOrders, getOrdersRemote, type Order, type OrderStatus } from "@/lib/orders";
+import { getEffectiveStage, getNextStage } from "@/lib/order-stage";
+import {
+  getOrders,
+  getOrdersRemote,
+  updateOrderStage,
+  updateOrderStageRemote,
+  type Order,
+  type OrderStatus,
+} from "@/lib/orders";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   paid: "Preparing",
@@ -40,6 +49,25 @@ export default function OrdersPage() {
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [trackedIds, setTrackedIds] = useState<Set<string>>(new Set());
+
+  const toggleTracking = (id: string) => {
+    setTrackedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleMarkDelivered = (order: Order) => {
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, stage: "delivered" } : o)));
+    if (user) {
+      updateOrderStageRemote(order.id, "delivered");
+    } else {
+      updateOrderStage(order.id, "delivered");
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -166,6 +194,40 @@ export default function OrdersPage() {
                   <span>Total</span>
                   <span>{formatPrice(order.total)}</span>
                 </div>
+
+                {(order.status === "paid" || order.status === "placed") && (
+                  <div className="mt-4 border-t border-brown-900/10 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => toggleTracking(order.id)}
+                      className="text-sm font-semibold text-brown-900 hover:underline"
+                    >
+                      {trackedIds.has(order.id) ? "Hide Tracking" : "Track My Order"}
+                    </button>
+
+                    {trackedIds.has(order.id) && (
+                      <div className="mt-5">
+                        <OrderTracker
+                          fulfillment={order.fulfillment}
+                          method={order.method}
+                          stage={order.stage}
+                        />
+                        {getNextStage(getEffectiveStage(order.stage, order.method), order.method) ===
+                          "delivered" && (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkDelivered(order)}
+                            className="mt-5 w-full rounded-full bg-brown-900 px-6 py-3 text-sm font-bold text-cream hover:bg-brown-800"
+                          >
+                            {order.fulfillment === "pickup"
+                              ? "Mark as Picked Up"
+                              : "Mark as Delivered"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

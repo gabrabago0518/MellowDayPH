@@ -84,6 +84,7 @@ export default function CheckoutPage() {
         createdAt: new Date().toISOString(),
         method: "cash",
         status: "placed",
+        stage: "confirmation",
         items: items.map((item) => ({
           id: item.id,
           name: item.name,

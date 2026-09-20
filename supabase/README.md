@@ -112,3 +112,12 @@ This adds a `change_for` column to `orders`. At checkout, a customer paying
 Cash on Delivery can optionally note the bill they'll pay with (e.g.
 "change for ₱500"), which then shows on the order card, kitchen ticket, and
 receipt in the cashier dashboard so the rider brings the right change.
+
+## 9. Special instructions
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/008_add_order_special_instructions.sql` → **Run**.
+
+This adds a `special_instructions` column to `orders`. At checkout, a
+customer can optionally leave a note (e.g. "extra tissue, extra spoon"),
+which shows on the order card and kitchen ticket in the cashier dashboard.

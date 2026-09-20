@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [barangay, setBarangay] = useState("");
   const [landmark, setLandmark] = useState("");
   const [changeFor, setChangeFor] = useState("");
+  const [specialInstructions, setSpecialInstructions] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cashConfirmed, setCashConfirmed] = useState(false);
@@ -112,6 +113,7 @@ export default function CheckoutPage() {
         fulfillment,
         deliveryAddress,
         changeFor: isCashOnDelivery ? changeForNumber : undefined,
+        specialInstructions: specialInstructions.trim() || undefined,
         name,
         phone,
       };
@@ -133,6 +135,7 @@ export default function CheckoutPage() {
             method: fulfillment,
             ...(fulfillment === "delivery" ? { street, city, barangay, landmark } : {}),
           },
+          specialInstructions: specialInstructions.trim() || undefined,
         }),
       });
 
@@ -155,6 +158,7 @@ export default function CheckoutPage() {
         total: orderTotal,
         fulfillment,
         deliveryAddress,
+        specialInstructions: specialInstructions.trim() || undefined,
         name,
         phone,
       };
@@ -238,6 +242,7 @@ export default function CheckoutPage() {
               {isCashOnDelivery &&
                 changeForNumber !== undefined &&
                 `\nChange for: ${formatPrice(changeForNumber)}`}
+              {specialInstructions.trim() && `\nSpecial instructions: ${specialInstructions.trim()}`}
             </pre>
             <button
               type="button"
@@ -465,6 +470,18 @@ export default function CheckoutPage() {
                     className={`rounded-2xl px-4 py-3 text-brown-900 outline-none ${
                       user ? "bg-brown-100/60 text-brown-900/70" : "bg-brown-100/40 focus:bg-white"
                     }`}
+                  />
+                </label>
+                <label className="mt-4 flex flex-col gap-1.5 text-sm">
+                  <span className="font-semibold text-brown-900/80">
+                    Special Instructions (optional)
+                  </span>
+                  <textarea
+                    value={specialInstructions}
+                    onChange={(e) => setSpecialInstructions(e.target.value)}
+                    placeholder="e.g. extra tissue, extra spoon"
+                    rows={2}
+                    className="rounded-2xl bg-brown-100/40 px-4 py-3 text-brown-900 outline-none focus:bg-white"
                   />
                 </label>
               </section>

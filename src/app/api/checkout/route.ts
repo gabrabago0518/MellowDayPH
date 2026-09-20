@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       barangay?: string;
       landmark?: string;
     };
+    specialInstructions?: string;
   };
 
   try {
@@ -98,6 +99,7 @@ export async function POST(request: Request) {
     method === "delivery"
       ? [street, barangay, city, landmark].filter(Boolean).join(", ")
       : "";
+  const specialInstructions = body.specialInstructions?.trim().slice(0, 480);
 
   try {
     const checkout = await createGCashCheckout({
@@ -109,6 +111,7 @@ export async function POST(request: Request) {
         customer_phone: phone,
         fulfillment_method: method,
         ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
+        ...(specialInstructions ? { special_instructions: specialInstructions } : {}),
       },
       billing: { name, phone, email: customer.email?.trim() },
       returnUrl: `${origin}/checkout/return`,

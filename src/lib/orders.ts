@@ -32,6 +32,9 @@ export type Order = {
   // Cash on Delivery only — the bill the customer says they'll pay with, so
   // the rider knows how much change to bring. Undefined means exact amount.
   changeFor?: number;
+  // Optional free-text note from the customer (e.g. "extra tissue, extra
+  // spoon") shown to staff preparing the order.
+  specialInstructions?: string;
   name: string;
   phone: string;
 };
@@ -111,6 +114,7 @@ type OrderRow = {
   fulfillment: "pickup" | "delivery";
   delivery_address: string | null;
   change_for: number | null;
+  special_instructions: string | null;
   name: string;
   phone: string;
 };
@@ -128,6 +132,7 @@ function rowToOrder(row: OrderRow): Order {
     fulfillment: row.fulfillment,
     deliveryAddress: row.delivery_address ?? undefined,
     changeFor: row.change_for != null ? Number(row.change_for) : undefined,
+    specialInstructions: row.special_instructions ?? undefined,
     name: row.name,
     phone: row.phone,
   };
@@ -148,6 +153,7 @@ export async function saveOrderRemote(order: Order, userId: string): Promise<voi
     fulfillment: order.fulfillment,
     delivery_address: order.deliveryAddress ?? null,
     change_for: order.changeFor ?? null,
+    special_instructions: order.specialInstructions ?? null,
     name: order.name,
     phone: order.phone,
   });

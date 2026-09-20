@@ -13,6 +13,7 @@ export type AdminOrderRow = {
   fulfillment: "pickup" | "delivery";
   delivery_address: string | null;
   change_for: number | null;
+  special_instructions: string | null;
   name: string;
   phone: string;
 };

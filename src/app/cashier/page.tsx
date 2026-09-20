@@ -28,6 +28,18 @@ function cashierStageLabel(fulfillment: "pickup" | "delivery", stage: OrderStage
 
 type GateState = "loading" | "unauthenticated" | "not-configured" | "error" | "ready";
 
+// order.name/phone/special_instructions are customer-entered text going into
+// document.write — escape before interpolating to avoid script injection in
+// the printed window.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function printOrderTicket(order: AdminOrderRow) {
   const w = window.open("", "_blank", "width=380,height=600");
   if (!w) return;
@@ -53,11 +65,16 @@ function printOrderTicket(order: AdminOrderRow) {
         <h1>Mellow Day PH — Kitchen Ticket</h1>
         <p>Order #${order.id}</p>
         <p>${formatDate(order.created_at)}</p>
-        <p>${order.name} &middot; ${order.phone}</p>
+        <p>${escapeHtml(order.name)} &middot; ${escapeHtml(order.phone)}</p>
         <p>${order.fulfillment === "delivery" ? "Delivery" : "Pickup"}</p>
         ${
           order.method === "cash" && order.change_for != null
             ? `<p><strong>Change for: ${formatPrice(order.change_for)}</strong></p>`
+            : ""
+        }
+        ${
+          order.special_instructions
+            ? `<p><strong>Note: ${escapeHtml(order.special_instructions)}</strong></p>`
             : ""
         }
         <hr />
@@ -98,7 +115,7 @@ function printReceipt(order: AdminOrderRow) {
         <hr />
         <p style="text-align:left;">Order #${order.id}</p>
         <p style="text-align:left;">${formatDate(order.created_at)}</p>
-        <p style="text-align:left;">${order.name} &middot; ${order.phone}</p>
+        <p style="text-align:left;">${escapeHtml(order.name)} &middot; ${escapeHtml(order.phone)}</p>
         <hr />
         ${itemsHtml}
         <hr />
@@ -364,6 +381,11 @@ export default function CashierPage() {
                   {order.method === "cash" && order.change_for != null && (
                     <p className="mt-1 text-xs font-bold text-brown-900">
                       Change for: {formatPrice(order.change_for)}
+                    </p>
+                  )}
+                  {order.special_instructions && (
+                    <p className="mt-1 text-xs font-bold text-brown-900">
+                      Note: {order.special_instructions}
                     </p>
                   )}
 

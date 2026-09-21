@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Logo from "./Logo";
 import { IconClock, IconFacebook, IconInstagram, IconPhone, IconPin } from "./icons";
 
@@ -64,8 +65,11 @@ export default function Footer({ className = "bg-green" }: { className?: string 
           </div>
         </div>
 
-        <div className="mt-5 border-t border-brown-900/15 pt-3 text-center text-xs text-brown-900/70">
-          &copy; {new Date().getFullYear()} Mellow Day PH. All rights reserved.
+        <div className="mt-5 flex flex-col items-center gap-2 border-t border-brown-900/15 pt-3 text-center text-xs text-brown-900/70 sm:flex-row sm:justify-between">
+          <span>&copy; {new Date().getFullYear()} Mellow Day PH. All rights reserved.</span>
+          <Link href="/privacy" className="font-semibold hover:underline">
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { verifyPassword } from "@/lib/admin-credentials";
+import { clearFailedAttempts, isLocked, recordFailedAttempt } from "@/lib/login-lockout";
 import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE,
@@ -24,17 +25,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Username and password are required." }, { status: 400 });
   }
 
-  const { data: admin, error } = await getSupabaseAdmin()
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data: admin, error } = await supabaseAdmin
     .from("admins")
-    .select("id, username, password_hash")
+    .select("id, username, password_hash, failed_attempts, locked_until")
     .eq("username", username)
     .maybeSingle();
 
   // Same generic error whether the username doesn't exist or the password
   // is wrong — never reveal which.
-  if (error || !admin || !verifyPassword(password, admin.password_hash)) {
+  if (error || !admin) {
     return NextResponse.json({ error: "Invalid username or password." }, { status: 401 });
   }
+
+  if (isLocked(admin)) {
+    return NextResponse.json(
+      { error: "Too many failed attempts. Try again in a few minutes." },
+      { status: 401 },
+    );
+  }
+
+  if (!verifyPassword(password, admin.password_hash)) {
+    await recordFailedAttempt(supabaseAdmin, "admins", admin);
+    return NextResponse.json({ error: "Invalid username or password." }, { status: 401 });
+  }
+
+  await clearFailedAttempts(supabaseAdmin, "admins", admin.id);
 
   const token = createSessionToken({ id: admin.id, username: admin.username });
 

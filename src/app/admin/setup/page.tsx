@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 
 export default function AdminSetupPage() {
   const [setupKey, setSetupKey] = useState("");
@@ -18,20 +19,25 @@ export default function AdminSetupPage() {
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/admin/auth/setup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ setupKey, fullName, username, password }),
-    });
+    try {
+      const res = await fetchWithTimeout("/api/admin/auth/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ setupKey, fullName, username, password }),
+      });
 
-    setLoading(false);
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError(body.error || "Something went wrong.");
-      return;
+      setLoading(false);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || "Something went wrong.");
+        return;
+      }
+
+      setDone(true);
+    } catch (err) {
+      setLoading(false);
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     }
-
-    setDone(true);
   };
 
   return (

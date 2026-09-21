@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -16,20 +17,25 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/admin/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      const res = await fetchWithTimeout("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    setLoading(false);
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError(body.error || "Something went wrong.");
-      return;
+      setLoading(false);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || "Something went wrong.");
+        return;
+      }
+
+      router.push("/admin");
+    } catch (err) {
+      setLoading(false);
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     }
-
-    router.push("/admin");
   };
 
   return (

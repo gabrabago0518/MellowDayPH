@@ -121,3 +121,32 @@ Dashboard → **SQL Editor** → New query → paste the contents of
 This adds a `special_instructions` column to `orders`. At checkout, a
 customer can optionally leave a note (e.g. "extra tissue, extra spoon"),
 which shows on the order card and kitchen ticket in the cashier dashboard.
+
+## 10. ⚠️ Security fix — run this even on an already-live site
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/009_lock_down_order_writes.sql` → **Run**.
+
+This closes a real vulnerability: `orders` previously let a signed-in
+customer INSERT/UPDATE their own order rows directly from the browser
+(the anon key + RLS only checked `auth.uid() = user_id`, with no check on
+*which* fields changed or that a payment actually happened). That meant
+anyone could fabricate an order at any price, or mark it "paid"/"delivered"
+themselves, with a raw REST call — completely bypassing checkout and GCash
+verification. Order creation and status/stage changes now go through
+server API routes instead, so this migration is safe to run any time —
+existing orders and reading your own orders are unaffected, only the old
+client-writable policies are removed.
+
+**Run this one as soon as possible if this site has already been deployed
+with real orders**, since until it's applied the vulnerability above stays
+open in your live database regardless of what code is deployed.
+
+## 11. Admin/cashier login lockout
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/010_add_login_lockout.sql` → **Run**.
+
+Adds failed-attempt tracking to `admins` and `staff`: after 5 wrong
+passwords in a row against the same account, that account is locked for 15
+minutes. No Vercel configuration needed.

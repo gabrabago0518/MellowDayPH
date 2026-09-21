@@ -16,9 +16,11 @@ import {
   MIN_DELIVERY_FEE_PESOS,
   getDeliveryFeeForCity,
 } from "@/lib/delivery-fee";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { NCR_BARANGAYS, NCR_CITIES } from "@/lib/ncr-locations";
-import { saveOrder, saveOrderRemote, type Order } from "@/lib/orders";
+import { saveOrder, rowToOrder } from "@/lib/orders";
+import { supabase } from "@/lib/supabase";
 
 const MIN_AMOUNT_PESOS = 20;
 
@@ -85,58 +87,57 @@ export default function CheckoutPage() {
     .map((item) => `${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}`)
     .join("\n");
 
-  const deliveryAddress =
-    fulfillment === "delivery"
-      ? [street, barangay, city, landmark].filter(Boolean).join(", ")
-      : undefined;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (method === "cash") {
-      const now = new Date().toISOString();
-      const order: Order = {
-        id: `cash-${Date.now()}`,
-        createdAt: now,
-        method: "cash",
-        status: "placed",
-        stage: "confirmation",
-        stageHistory: { confirmation: now },
-        items: items.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-        })),
-        total: orderTotal,
-        fulfillment,
-        deliveryAddress,
-        changeFor: isCashOnDelivery ? changeForNumber : undefined,
-        specialInstructions: specialInstructions.trim() || undefined,
-        name,
-        phone,
-      };
-      saveOrder(order);
-      if (user) saveOrderRemote(order, user.id);
-      setCashConfirmed(true);
+    if (!supabase) {
+      setError("Accounts aren't set up on this site yet.");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch("/api/checkout", {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        throw new Error("Your session has expired — please log in again.");
+      }
+
+      const requestBody = {
+        items: items.map((item) => ({ id: item.id, quantity: item.quantity })),
+        customer: { name, phone, email },
+        fulfillment: {
+          method: fulfillment,
+          ...(fulfillment === "delivery" ? { street, city, barangay, landmark } : {}),
+        },
+        specialInstructions: specialInstructions.trim() || undefined,
+      };
+
+      if (method === "cash") {
+        const res = await fetchWithTimeout("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            ...requestBody,
+            changeFor: isCashOnDelivery ? changeForNumber : undefined,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong. Please try again.");
+        }
+
+        saveOrder(rowToOrder(data.order));
+        setLoading(false);
+        setCashConfirmed(true);
+        return;
+      }
+
+      const res = await fetchWithTimeout("/api/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map((item) => ({ id: item.id, quantity: item.quantity })),
-          customer: { name, phone, email },
-          fulfillment: {
-            method: fulfillment,
-            ...(fulfillment === "delivery" ? { street, city, barangay, landmark } : {}),
-          },
-          specialInstructions: specialInstructions.trim() || undefined,
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();
@@ -144,29 +145,7 @@ export default function CheckoutPage() {
         throw new Error(data.error || "Something went wrong. Please try again.");
       }
 
-      const order: Order = {
-        id: data.paymentIntentId,
-        createdAt: new Date().toISOString(),
-        method: "gcash",
-        status: "pending",
-        items: items.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-        })),
-        total: orderTotal,
-        fulfillment,
-        deliveryAddress,
-        specialInstructions: specialInstructions.trim() || undefined,
-        name,
-        phone,
-      };
-      saveOrder(order);
-      // Must finish before navigating away to GCash below — an unawaited
-      // write here can get cancelled by the immediate redirect, leaving no
-      // row for checkout/return to later update to "paid".
-      if (user) await saveOrderRemote(order, user.id);
+      saveOrder(rowToOrder(data.order));
 
       sessionStorage.setItem(
         "mellowday-payment",
@@ -635,7 +614,9 @@ export default function CheckoutPage() {
                   className="mt-5 w-full rounded-full bg-brown-900 px-6 py-4 text-sm font-bold text-cream shadow-lg shadow-brown-900/20 transition-transform hover:-translate-y-0.5 hover:bg-brown-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   {loading
-                    ? "Redirecting to GCash…"
+                    ? method === "gcash"
+                      ? "Redirecting to GCash…"
+                      : "Placing your order…"
                     : method === "gcash"
                       ? `Pay with GCash — ${formatPrice(orderTotal)}`
                       : `Place Order — ${formatPrice(orderTotal)}`}

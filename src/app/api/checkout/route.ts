@@ -1,88 +1,28 @@
 import { NextResponse } from "next/server";
-import { getDeliveryFeeForCity } from "@/lib/delivery-fee";
-import { MENU_ITEMS } from "@/lib/menu-data";
+import { verifyCustomer } from "@/lib/customer-auth";
+import { computeOrderPricing, MIN_AMOUNT_PESOS, type OrderPricingInput } from "@/lib/order-pricing";
 import { createGCashCheckout } from "@/lib/paymongo";
-
-const MIN_AMOUNT_PESOS = 20;
-
-type CheckoutRequestItem = { id: string; quantity: number };
-type FulfillmentMethod = "pickup" | "delivery";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(request: Request) {
-  let body: {
-    items?: CheckoutRequestItem[];
-    customer?: { name?: string; phone?: string; email?: string };
-    fulfillment?: {
-      method?: FulfillmentMethod;
-      street?: string;
-      city?: string;
-      barangay?: string;
-      landmark?: string;
-    };
-    specialInstructions?: string;
-  };
+  const auth = await verifyCustomer(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
+  let body: OrderPricingInput;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const items = body.items ?? [];
-  const customer = body.customer ?? {};
-  const fulfillment = body.fulfillment ?? {};
-
-  if (items.length === 0) {
-    return NextResponse.json({ error: "Your bag is empty" }, { status: 400 });
+  const pricing = computeOrderPricing(body);
+  if ("error" in pricing) {
+    return NextResponse.json({ error: pricing.error }, { status: pricing.status });
   }
 
-  const name = customer.name?.trim();
-  const phone = customer.phone?.trim();
-  if (!name || !phone) {
-    return NextResponse.json(
-      { error: "Name and mobile number are required" },
-      { status: 400 },
-    );
-  }
-
-  const method: FulfillmentMethod = fulfillment.method === "delivery" ? "delivery" : "pickup";
-  const street = fulfillment.street?.trim();
-  const city = fulfillment.city?.trim();
-  const barangay = fulfillment.barangay?.trim();
-  const landmark = fulfillment.landmark?.trim();
-
-  if (method === "delivery" && (!street || !city || !barangay)) {
-    return NextResponse.json(
-      { error: "Street, barangay, and city are required for delivery" },
-      { status: 400 },
-    );
-  }
-
-  // Recompute the total from the real menu data — never trust a client-sent price.
-  let totalPesos = 0;
-  const summaryLines: string[] = [];
-
-  for (const line of items) {
-    const menuItem = MENU_ITEMS.find((m) => m.id === line.id);
-    const quantity = Math.floor(Number(line.quantity));
-
-    if (!menuItem || !Number.isFinite(quantity) || quantity <= 0) {
-      return NextResponse.json(
-        { error: "Your bag contains an invalid item — please refresh and try again" },
-        { status: 400 },
-      );
-    }
-
-    totalPesos += menuItem.price * quantity;
-    summaryLines.push(`${quantity}x ${menuItem.name}`);
-  }
-
-  // Delivery fee is computed server-side from the city — never trust a
-  // client-sent fee. Distance-tiered: farther cities cost more to deliver to.
-  const deliveryFee = method === "delivery" ? getDeliveryFeeForCity(city) : 0;
-  totalPesos += deliveryFee;
-
-  if (totalPesos < MIN_AMOUNT_PESOS) {
+  if (pricing.totalPesos < MIN_AMOUNT_PESOS) {
     return NextResponse.json(
       { error: `Minimum order for GCash payment is ₱${MIN_AMOUNT_PESOS}` },
       { status: 400 },
@@ -90,36 +30,57 @@ export async function POST(request: Request) {
   }
 
   const origin = new URL(request.url).origin;
-  const summaryText =
-    method === "delivery"
-      ? `${summaryLines.join(", ")} + delivery (₱${deliveryFee})`
-      : summaryLines.join(", ");
-  const orderSummary = summaryText.slice(0, 480);
-  const deliveryAddress =
-    method === "delivery"
-      ? [street, barangay, city, landmark].filter(Boolean).join(", ")
-      : "";
-  const specialInstructions = body.specialInstructions?.trim().slice(0, 480);
 
+  let checkout;
   try {
-    const checkout = await createGCashCheckout({
-      amountCentavos: Math.round(totalPesos * 100),
-      description: `Mellow Day PH order for ${name}`,
+    checkout = await createGCashCheckout({
+      amountCentavos: Math.round(pricing.totalPesos * 100),
+      description: `Mellow Day PH order for ${pricing.name}`,
       metadata: {
-        order_summary: orderSummary,
-        customer_name: name,
-        customer_phone: phone,
-        fulfillment_method: method,
-        ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
-        ...(specialInstructions ? { special_instructions: specialInstructions } : {}),
+        order_summary: pricing.orderSummary,
+        customer_name: pricing.name,
+        customer_phone: pricing.phone,
+        fulfillment_method: pricing.method,
+        ...(pricing.deliveryAddress ? { delivery_address: pricing.deliveryAddress } : {}),
+        ...(pricing.specialInstructions ? { special_instructions: pricing.specialInstructions } : {}),
       },
-      billing: { name, phone, email: customer.email?.trim() },
+      billing: { name: pricing.name, phone: pricing.phone, email: pricing.email || undefined },
       returnUrl: `${origin}/checkout/return`,
     });
-
-    return NextResponse.json(checkout);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Payment setup failed";
     return NextResponse.json({ error: message }, { status: 502 });
   }
+
+  // The order row is created server-side, tied to the real authenticated
+  // user id — never a client-supplied one — with the same server-computed
+  // price used for the PayMongo amount above.
+  const { data: order, error: insertError } = await getSupabaseAdmin()
+    .from("orders")
+    .insert({
+      id: checkout.paymentIntentId,
+      user_id: auth.userId,
+      method: "gcash",
+      status: "pending",
+      items: pricing.items,
+      total: pricing.totalPesos,
+      fulfillment: pricing.method,
+      delivery_address: pricing.deliveryAddress ?? null,
+      special_instructions: pricing.specialInstructions ?? null,
+      name: pricing.name,
+      phone: pricing.phone,
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    return NextResponse.json({ error: "Could not save your order. Please try again." }, { status: 502 });
+  }
+
+  return NextResponse.json({
+    paymentIntentId: checkout.paymentIntentId,
+    clientKey: checkout.clientKey,
+    checkoutUrl: checkout.checkoutUrl,
+    order,
+  });
 }

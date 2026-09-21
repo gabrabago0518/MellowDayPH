@@ -100,7 +100,16 @@ export function updateOrderStage(id: string, stage: OrderStage, stageHistory: St
 // Signed-in customers get their orders stored in Supabase (see
 // supabase/migrations/001_create_orders.sql) so history follows their
 // account across devices. Guests keep using the localStorage functions
-// above. Both are best-effort — a failed remote write never blocks checkout.
+// above.
+//
+// Reading is safe directly from the browser (RLS restricts a customer to
+// their own rows either way), but creating orders and changing their
+// status/stage is NOT done from here anymore — those go through server API
+// routes (/api/checkout, /api/orders, /api/checkout/confirm,
+// /api/orders/[id]/advance) that recompute price and/or verify payment
+// server-side. See migrations/009_lock_down_order_writes.sql: the RLS
+// policies that used to let a client write its own orders directly are
+// gone, so a direct client write would now just fail RLS anyway.
 
 type OrderRow = {
   id: string;
@@ -119,7 +128,7 @@ type OrderRow = {
   phone: string;
 };
 
-function rowToOrder(row: OrderRow): Order {
+export function rowToOrder(row: OrderRow): Order {
   return {
     id: row.id,
     createdAt: row.created_at,
@@ -136,53 +145,6 @@ function rowToOrder(row: OrderRow): Order {
     name: row.name,
     phone: row.phone,
   };
-}
-
-export async function saveOrderRemote(order: Order, userId: string): Promise<void> {
-  if (!supabase) return;
-  await supabase.from("orders").upsert({
-    id: order.id,
-    user_id: userId,
-    created_at: order.createdAt,
-    method: order.method,
-    status: order.status,
-    stage: order.stage ?? null,
-    stage_history: order.stageHistory ?? {},
-    items: order.items,
-    total: order.total,
-    fulfillment: order.fulfillment,
-    delivery_address: order.deliveryAddress ?? null,
-    change_for: order.changeFor ?? null,
-    special_instructions: order.specialInstructions ?? null,
-    name: order.name,
-    phone: order.phone,
-  });
-}
-
-export async function updateOrderStatusRemote(
-  id: string,
-  status: OrderStatus,
-  stage?: OrderStage,
-  stageHistory?: StageHistory,
-): Promise<void> {
-  if (!supabase) return;
-  await supabase
-    .from("orders")
-    .update({
-      status,
-      ...(stage ? { stage } : {}),
-      ...(stageHistory ? { stage_history: stageHistory } : {}),
-    })
-    .eq("id", id);
-}
-
-export async function updateOrderStageRemote(
-  id: string,
-  stage: OrderStage,
-  stageHistory: StageHistory,
-): Promise<void> {
-  if (!supabase) return;
-  await supabase.from("orders").update({ stage, stage_history: stageHistory }).eq("id", id);
 }
 
 export async function getOrdersRemote(userId: string): Promise<Order[]> {

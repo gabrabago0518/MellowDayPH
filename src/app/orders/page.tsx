@@ -10,15 +10,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderTracker from "@/components/OrderTracker";
 import { useAuth } from "@/lib/AuthContext";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { getEffectiveStage, getNextStage, getStageLabel } from "@/lib/order-stage";
-import {
-  getOrders,
-  getOrdersRemote,
-  updateOrderStage,
-  updateOrderStageRemote,
-  type Order,
-} from "@/lib/orders";
+import { getOrders, getOrdersRemote, updateOrderStage, type Order } from "@/lib/orders";
+import { supabase } from "@/lib/supabase";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("en-PH", {
@@ -45,15 +41,37 @@ export default function OrdersPage() {
     });
   };
 
-  const handleMarkDelivered = (order: Order) => {
+  const handleMarkDelivered = async (order: Order) => {
     const stageHistory = { ...order.stageHistory, delivered: new Date().toISOString() };
     setOrders((prev) =>
       prev.map((o) => (o.id === order.id ? { ...o, stage: "delivered", stageHistory } : o)),
     );
-    if (user) {
-      updateOrderStageRemote(order.id, "delivered", stageHistory);
-    } else {
+
+    if (!user) {
       updateOrderStage(order.id, "delivered", stageHistory);
+      return;
+    }
+
+    // The server independently verifies ownership and that "delivered" is
+    // genuinely the next stage before writing anything — it doesn't trust
+    // the stageHistory computed above, which is just an optimistic local
+    // preview.
+    try {
+      const token = supabase ? (await supabase.auth.getSession()).data.session?.access_token : undefined;
+      if (!token) {
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
+        return;
+      }
+
+      const res = await fetchWithTimeout(`/api/orders/${order.id}/advance`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
+      }
+    } catch {
+      setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
     }
   };
 

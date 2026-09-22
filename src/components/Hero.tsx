@@ -27,9 +27,9 @@ export default function Hero() {
             every day.
           </h1>
           <p className="mx-auto mt-5 max-w-md text-base text-cream/80 md:mx-0 lg:max-w-lg lg:text-lg">
-            Handcrafted milk tea, coffee, and specialty drinks made slow,
-            made fresh, and made to help you press pause — one sip at a
-            time.
+            Handcrafted milk tea, coffee, and specialty drinks — delivered
+            fresh across Taguig City or ready for pickup, made slow, made
+            fresh, one sip at a time.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
             <Link

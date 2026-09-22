@@ -8,7 +8,7 @@ import SectionWave from "@/components/SectionWave";
 export const metadata: Metadata = {
   title: "Menu",
   description:
-    "Browse Mellow Day PH's full menu — milk tea, coffee, and specialty drinks, handcrafted fresh and made to order in Taguig City.",
+    "Browse Mellow Day PH's full menu — milk tea, coffee, and specialty drinks, handcrafted fresh and available for delivery or pickup in Taguig City.",
 };
 
 export default function MenuPage() {

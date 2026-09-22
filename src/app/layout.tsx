@@ -22,8 +22,60 @@ const nunito = Nunito({
 });
 
 const SITE_URL = "https://mellowdayph.vercel.app";
+// Optimized for the two target keywords: the brand name itself, and
+// "milk tea delivery Taguig" — both worked in naturally (title, meta
+// description, OG/Twitter tags, and the LocalBusiness structured data
+// below), never stuffed.
+const TITLE = "Mellow Day PH – Milk Tea Delivery in Taguig City";
 const DESCRIPTION =
-  "Handcrafted milk tea, coffee, and specialty drinks made slow, made fresh — a mellow day, every day.";
+  "Order milk tea, coffee, and specialty drinks for delivery or pickup in Taguig City. Mellow Day PH — handcrafted, made fresh, made to order.";
+
+// LocalBusiness structured data — how Google actually understands what
+// this business is, where it is, and that it delivers, independent of the
+// page's visible copy. This is the single highest-leverage on-page change
+// for local + delivery search intent; nothing else here moves the needle
+// as much without also setting up a Google Business Profile (a separate,
+// account-based step outside what code alone can do).
+const LOCAL_BUSINESS_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "CafeOrCoffeeShop",
+  name: "Mellow Day PH",
+  image: `${SITE_URL}/hero-bg.jpg`,
+  url: SITE_URL,
+  telephone: "+639763933039",
+  priceRange: "₱₱",
+  servesCuisine: ["Milk Tea", "Coffee", "Specialty Drinks"],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Corner Saint Mary, Central Signal Village",
+    addressLocality: "Taguig City",
+    addressRegion: "Metro Manila",
+    addressCountry: "PH",
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+    opens: "08:00",
+    closes: "00:00",
+  },
+  areaServed: {
+    "@type": "City",
+    name: "Taguig City",
+  },
+  hasDeliveryMethod: "https://schema.org/DeliveryModeMixed",
+  sameAs: [
+    "https://www.facebook.com/profile.php?id=61587137513893",
+    "https://www.instagram.com/mellowday.ph/",
+  ],
+};
 
 export const metadata: Metadata = {
   // Resolves relative URLs below (and any page's own metadata) to absolute
@@ -36,7 +88,7 @@ export const metadata: Metadata = {
   // distinct, descriptive title in search results instead of every page
   // showing the same generic one.
   title: {
-    default: "Mellow Day PH",
+    default: TITLE,
     template: "%s | Mellow Day PH",
   },
   description: DESCRIPTION,
@@ -46,7 +98,7 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   openGraph: {
-    title: "Mellow Day PH",
+    title: TITLE,
     description: DESCRIPTION,
     url: SITE_URL,
     siteName: "Mellow Day PH",
@@ -56,7 +108,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mellow Day PH",
+    title: TITLE,
     description: DESCRIPTION,
     images: ["/hero-bg.jpg"],
   },
@@ -73,6 +125,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-body">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_JSON_LD) }}
+        />
         <script
           // Flips on scroll-reveal animations only once JS has actually run,
           // so content never depends on the observer firing to be visible.

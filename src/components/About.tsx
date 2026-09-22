@@ -33,10 +33,10 @@ export default function About() {
           <p className="mt-5 text-base leading-relaxed text-brown-800/90">
             Mellow Day PH started with a simple idea: everyone deserves a
             little pause in their day. What began as a small milk tea stand
-            has grown into a cozy spot where friends catch up, students
-            study, and regulars know their order by heart. Every cup is
-            made fresh, one drink at a time — because slowing down should
-            taste this good.
+            has grown into a cozy spot in Taguig City where friends catch
+            up, students study, and regulars know their order by heart.
+            Every cup is made fresh, one drink at a time — because slowing
+            down should taste this good.
           </p>
           <ul className="mt-6 space-y-3">
             {FEATURES.map((feature) => (

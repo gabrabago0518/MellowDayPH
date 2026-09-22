@@ -89,55 +89,128 @@ function printOrderTicket(order: AdminOrderRow) {
 }
 
 function printReceipt(order: AdminOrderRow) {
-  const w = window.open("", "_blank", "width=380,height=600");
+  const w = window.open("", "_blank", "width=380,height=680");
   if (!w) return;
 
   const itemsHtml = order.items
     .map(
-      (item) =>
-        `<div style="display:flex;justify-content:space-between;"><span>${item.quantity}x ${item.name}</span><span>${formatPrice(item.price * item.quantity)}</span></div>`,
+      (item) => `
+        <div class="item-row">
+          <span class="item-qty">${item.quantity}&times;</span>
+          <span class="item-name">${escapeHtml(item.name)}</span>
+          <span class="item-amount">${formatPrice(item.price * item.quantity)}</span>
+        </div>`,
     )
     .join("");
 
+  const deliveryHtml =
+    order.fulfillment === "delivery" && order.delivery_address
+      ? `
+        <p class="label" style="margin-top:8px;">Deliver to</p>
+        <p class="note">${escapeHtml(order.delivery_address)}</p>`
+      : "";
+
+  const noteHtml = order.special_instructions
+    ? `
+        <p class="label" style="margin-top:8px;">Note</p>
+        <p class="note" style="font-weight:700;">${escapeHtml(order.special_instructions)}</p>`
+    : "";
+
+  const cashHtml =
+    order.method === "cash" && order.change_for != null
+      ? `
+        <div class="row"><span class="label">Tendered</span><span>${formatPrice(order.change_for)}</span></div>
+        <div class="row" style="font-weight:700;"><span class="label">Change</span><span>${formatPrice(order.change_for - order.total)}</span></div>`
+      : "";
+
+  // window.print() runs from the popup's own onload instead of being
+  // called synchronously right after document.close() — the logo image
+  // below needs a moment to actually load first, or it can print blank.
   w.document.write(`
     <html>
       <head>
         <title>Receipt — ${order.id}</title>
         <style>
-          body { font-family: monospace; padding: 16px; font-size: 13px; }
-          h2 { text-align: center; margin: 0; font-size: 16px; }
-          p { margin: 2px 0; text-align: center; }
-          hr { border: none; border-top: 1px dashed #000; margin: 10px 0; }
+          * { box-sizing: border-box; }
+          body {
+            font-family: "Courier New", Courier, monospace;
+            width: 300px;
+            margin: 0 auto;
+            padding: 22px 18px 26px;
+            color: #1a1208;
+            font-size: 12.5px;
+            line-height: 1.55;
+          }
+          .center { text-align: center; }
+          .logo { display: block; margin: 0 auto 8px; height: 44px; width: 44px; border-radius: 50%; object-fit: cover; }
+          .brand { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; margin: 0; }
+          .tagline { font-size: 10.5px; color: #6b5c47; margin: 2px 0 0; }
+          .meta { font-size: 10.5px; color: #6b5c47; margin: 1px 0; }
+          .divider { border: none; border-top: 1px dashed #b8ab94; margin: 12px 0; }
+          .divider-solid { border: none; border-top: 2px solid #1a1208; margin: 12px 0; }
+          .heading { text-align: center; font-weight: 700; letter-spacing: 1px; margin: 0 0 10px; font-size: 12px; }
+          .row { display: flex; justify-content: space-between; gap: 10px; margin: 2px 0; }
+          .label { color: #6b5c47; }
+          .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #6b5c47; margin: 0 0 6px; }
+          .item-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 6px; margin: 5px 0; }
+          .item-amount { text-align: right; }
+          .note { margin: 2px 0 0; font-size: 11.5px; }
+          .total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; margin: 4px 0; }
+          .footer { margin-top: 16px; text-align: center; }
+          .thanks { font-weight: 700; font-size: 13px; margin: 0 0 3px; }
+          .small { font-size: 10px; color: #8a7c66; margin: 1px 0; }
         </style>
       </head>
       <body>
-        <h2>Mellow Day PH</h2>
-        <p>Official Receipt</p>
-        <hr />
-        <p style="text-align:left;">Order #${order.id}</p>
-        <p style="text-align:left;">${formatDate(order.created_at)}</p>
-        <p style="text-align:left;">${escapeHtml(order.name)} &middot; ${escapeHtml(order.phone)}</p>
-        <hr />
-        ${itemsHtml}
-        <hr />
-        <div style="display:flex;justify-content:space-between;font-weight:bold;">
-          <span>Total</span><span>${formatPrice(order.total)}</span>
+        <div class="center">
+          <img class="logo" src="${window.location.origin}/logo.png" alt="" />
+          <p class="brand">MELLOW DAY PH</p>
+          <p class="tagline">A mellow day, every day.</p>
+          <p class="meta">Corner Saint Mary, Central Signal Village, Taguig City</p>
+          <p class="meta">+63 976 393 3039</p>
         </div>
-        <p style="text-align:left;margin-top:6px;">
-          Payment: ${order.method === "gcash" ? "GCash" : "Cash"}
-        </p>
-        ${
-          order.method === "cash" && order.change_for != null
-            ? `<p style="text-align:left;font-weight:bold;">Change for: ${formatPrice(order.change_for)}</p>`
-            : ""
-        }
-        <p style="margin-top:16px;">Thank you for choosing Mellow Day PH!</p>
+
+        <hr class="divider-solid" />
+
+        <p class="heading">ORDER RECEIPT</p>
+        <div class="row"><span class="label">Order #</span><span>${order.id}</span></div>
+        <div class="row"><span class="label">Date</span><span>${formatDate(order.created_at)}</span></div>
+        <div class="row"><span class="label">Customer</span><span>${escapeHtml(order.name)}</span></div>
+        <div class="row"><span class="label">Mobile</span><span>${escapeHtml(order.phone)}</span></div>
+        <div class="row"><span class="label">Type</span><span>${order.fulfillment === "delivery" ? "Delivery" : "Pickup"}</span></div>
+        ${deliveryHtml}
+
+        <hr class="divider" />
+
+        <p class="section-title">Items</p>
+        ${itemsHtml}
+
+        <hr class="divider" />
+
+        <div class="total-row"><span>TOTAL</span><span>${formatPrice(order.total)}</span></div>
+
+        <hr class="divider" />
+
+        <div class="row"><span class="label">Payment</span><span>${order.method === "gcash" ? "GCash" : "Cash"}</span></div>
+        ${cashHtml}
+        ${noteHtml}
+
+        <div class="footer">
+          <p class="thanks">Thank you for choosing Mellow Day PH! 🍵</p>
+          <p class="small">facebook.com/mellowday.ph &middot; @mellowday.ph</p>
+          <p class="small">This receipt is for your reference.</p>
+        </div>
+
+        <script>
+          window.onload = function () {
+            window.focus();
+            window.print();
+          };
+        </script>
       </body>
     </html>
   `);
   w.document.close();
-  w.focus();
-  w.print();
 }
 
 export default function CashierPage() {

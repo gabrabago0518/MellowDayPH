@@ -469,6 +469,10 @@ export default function CheckoutPage() {
                 <h2 className="font-heading text-lg font-bold text-brown-900">
                   Payment Method
                 </h2>
+                <p className="mt-1 rounded-xl bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-900">
+                  ⚠️ This site is still a trial and isn&apos;t officially launched yet — no real
+                  payments or transactions can be made here yet.
+                </p>
                 <div className="mt-4 flex flex-col gap-3">
                   <label
                     className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-colors ${

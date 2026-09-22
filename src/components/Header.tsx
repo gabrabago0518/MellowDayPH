@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useConfirm } from "./ConfirmDialog";
 import Logo from "./Logo";
+import TrialBanner from "./TrialBanner";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/lib/CartContext";
 import { IconCart, IconClose, IconMenu } from "./icons";
@@ -162,7 +163,9 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
+    <>
+      <TrialBanner />
+      <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <div
           className={`flex items-center justify-between rounded-full bg-cream/95 px-6 py-4 shadow-lg shadow-brown-900/10 backdrop-blur-md transition-shadow duration-300 sm:py-5 ${
@@ -248,5 +251,6 @@ export default function Header() {
         </div>
       </div>
     </header>
+    </>
   );
 }

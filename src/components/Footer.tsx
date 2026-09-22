@@ -8,7 +8,11 @@ const MAP_URL = "https://maps.app.goo.gl/dfmAK4aCdw8itYY2A";
 
 export default function Footer({ className = "bg-green" }: { className?: string }) {
   return (
-    <footer className={`mt-auto px-6 pb-7 pt-3 sm:px-10 md:pb-9 md:pt-4 ${className}`}>
+    // Extra bottom padding (beyond what this footer would otherwise need)
+    // clears the fixed TrialBanner rendered alongside Header, so its text
+    // never sits on top of the copyright row. Safe to drop back to
+    // pb-7/md:pb-9 once TrialBanner is removed.
+    <footer className={`mt-auto px-6 pb-20 pt-3 sm:px-10 md:pb-14 md:pt-4 ${className}`}>
       <div className="mx-auto max-w-4xl">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="flex flex-col items-center text-center sm:items-start sm:text-left">

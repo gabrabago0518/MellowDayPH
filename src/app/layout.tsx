@@ -21,14 +21,37 @@ const nunito = Nunito({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://mellowdayph.vercel.app";
+const DESCRIPTION =
+  "Handcrafted milk tea, coffee, and specialty drinks made slow, made fresh — a mellow day, every day.";
+
 export const metadata: Metadata = {
+  // Resolves relative URLs below (and any page's own metadata) to absolute
+  // ones — required for Open Graph/Twitter tags to work correctly, and
+  // generally good practice for how the site gets represented in search
+  // results and link previews.
+  metadataBase: new URL(SITE_URL),
   title: "Mellow Day PH",
-  description:
-    "Handcrafted milk tea, coffee, and specialty drinks made slow, made fresh — a mellow day, every day.",
+  description: DESCRIPTION,
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
     apple: "/logo.png",
+  },
+  openGraph: {
+    title: "Mellow Day PH",
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Mellow Day PH",
+    images: ["/hero-bg.jpg"],
+    locale: "en_PH",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mellow Day PH",
+    description: DESCRIPTION,
+    images: ["/hero-bg.jpg"],
   },
 };
 

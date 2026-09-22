@@ -53,6 +53,9 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     images: ["/hero-bg.jpg"],
   },
+  verification: {
+    google: "vLfK2_wL-Rj3HLyKjSmEkkE8oNsfGFONwHePjwD4Hx4",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

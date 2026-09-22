@@ -31,7 +31,14 @@ export const metadata: Metadata = {
   // generally good practice for how the site gets represented in search
   // results and link previews.
   metadataBase: new URL(SITE_URL),
-  title: "Mellow Day PH",
+  // Individual pages can set just their own short `title` and get
+  // " | Mellow Day PH" appended automatically, so each page can show a
+  // distinct, descriptive title in search results instead of every page
+  // showing the same generic one.
+  title: {
+    default: "Mellow Day PH",
+    template: "%s | Mellow Day PH",
+  },
   description: DESCRIPTION,
   icons: {
     icon: "/logo.png",

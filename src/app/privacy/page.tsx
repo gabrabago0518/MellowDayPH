@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartModal from "@/components/CartModal";
 
-export const metadata = {
-  title: "Privacy Policy — Mellow Day PH",
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "How Mellow Day PH collects, uses, and protects your personal information.",
 };
 
 export default function PrivacyPage() {

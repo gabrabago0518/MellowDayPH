@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getPaymentIntent } from "@/lib/paymongo";
 import { getSupabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
+// getPaymentIntent can retry once internally (see paymongoFetch), each
+// attempt with its own timeout — give the route enough room for that.
+export const maxDuration = 20;
+
 // Called from /checkout/return once the customer is back from GCash. The
 // payment_intent id + client_key pair (PayMongo's own capability token,
 // scoped to that one intent) is the authorization here — no customer

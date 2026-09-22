@@ -150,3 +150,34 @@ Dashboard → **SQL Editor** → New query → paste the contents of
 Adds failed-attempt tracking to `admins` and `staff`: after 5 wrong
 passwords in a row against the same account, that account is locked for 15
 minutes. No Vercel configuration needed.
+
+## 12. API abuse protection & cost caps
+
+No database migration for this one — it's all in the app code
+(`src/proxy.ts`, `src/lib/rate-limit.ts`, `src/lib/abuse-alert.ts`,
+`src/lib/paymongo.ts`).
+
+What it does:
+
+- **Rate limits every `/api/*` route by IP.** Order-creating routes
+  (`/api/checkout`, `/api/orders`) and login/setup routes are capped
+  tightly (8–10 requests per 5 minutes); the unauthenticated
+  `/api/checkout/confirm` route is capped at 20 per 5 minutes; everything
+  else defaults to 60 requests per minute. Exceeding it returns `429 Too
+  Many Requests` instead of running the route. This is a best-effort,
+  per-server-instance limit (no paid Redis/store added) — it stops the
+  common case of one bot or script hammering an endpoint, which is what
+  actually runs up a bill.
+- **Caps PayMongo retries.** Payment API calls now retry at most once, only
+  on a network error/timeout or a 429/5xx from PayMongo, never on a 4xx —
+  so a real failure fails fast instead of silently retrying forever, and a
+  transient blip doesn't fail the checkout outright either.
+- **Logs an abuse alert** (and optionally posts to a webhook) whenever an
+  IP gets rate-limited, at most once per 30 minutes per IP+route so it
+  can't itself become a flood.
+
+Optional: to also get a push notification (not just a server log) when
+abuse is detected, add `ALERT_WEBHOOK_URL` in Vercel → Project Settings →
+Environment Variables, pointing at a free Slack or Discord **Incoming
+Webhook** URL. Leave it unset and alerts still show up in Vercel's
+Function Logs.

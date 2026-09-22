@@ -4,6 +4,13 @@ import { computeOrderPricing, MIN_AMOUNT_PESOS, type OrderPricingInput } from "@
 import { createGCashCheckout } from "@/lib/paymongo";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
+// This route makes up to 3 sequential PayMongo calls (create intent,
+// create payment method, attach), each of which can now retry once with
+// its own timeout (see paymongoFetch) — the platform default function
+// timeout could otherwise cut off a legitimate retry mid-flight. The
+// deployment platform's own plan ceiling still applies on top of this.
+export const maxDuration = 30;
+
 export async function POST(request: Request) {
   const auth = await verifyCustomer(request);
   if (!auth.ok) {

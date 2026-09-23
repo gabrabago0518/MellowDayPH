@@ -181,3 +181,39 @@ abuse is detected, add `ALERT_WEBHOOK_URL` in Vercel → Project Settings →
 Environment Variables, pointing at a free Slack or Discord **Incoming
 Webhook** URL. Leave it unset and alerts still show up in Vercel's
 Function Logs.
+
+## 13. Menu items — moves the menu into the database
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/011_create_menu_items.sql` → **Run**. Then a second query with
+`migrations/012_seed_menu_items.sql` → **Run** — this loads the current
+menu (everything that used to be hardcoded in `src/lib/menu-data.ts`) into
+the new table so nothing on the live site changes the moment this ships.
+
+After this, add or edit menu items from `/admin` → **Menu** instead of
+editing code — a price change or a new drink shows up on the site within
+about a minute (sooner if it's genuinely urgent — the change is applied
+immediately, the public page just caches for up to an hour). No Vercel
+configuration needed.
+
+## 14. Error logging
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/013_create_error_logs.sql` → **Run**.
+
+Checkout/order failures and client-side crashes are now recorded instead
+of only living in Vercel's raw logs — view them at `/admin` → **Errors**.
+Server-side failures on the payment path (checkout, checkout confirmation,
+placing a cash order) also trigger the same abuse-alert webhook from step
+12 if `ALERT_WEBHOOK_URL` is set, so you find out immediately instead of
+from a customer complaint. No Vercel configuration needed beyond
+`ALERT_WEBHOOK_URL`, if you want the push alert (step 12 covers setting it
+up — this reuses it, nothing new to add).
+
+## 15. Uptime monitoring
+
+Not a database migration or app code — a scheduled check running in this
+Claude Code environment, hitting the live site every hour and reporting
+back only if it's actually down or erroring. Ask Claude (in this session
+or a new one in the same environment) if you want to check on it, change
+the schedule, or add a webhook/push alert to it.

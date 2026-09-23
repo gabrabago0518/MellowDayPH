@@ -193,3 +193,23 @@ export function IconLogout(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconCup(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M7 8.5h10l-1 10.5a1.5 1.5 0 0 1-1.5 1.5h-5a1.5 1.5 0 0 1-1.5-1.5z" />
+      <path d="M6 8.5h12" />
+      <path d="M9.5 3.5h5l.5 5h-6z" />
+    </svg>
+  );
+}
+
+export function IconAlertTriangle(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 3.5 21.5 20H2.5z" />
+      <path d="M12 9.5v5" />
+      <circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

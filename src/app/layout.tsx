@@ -3,6 +3,7 @@ import { Nunito, Paytone_One, Radio_Canada_Big } from "next/font/google";
 import CartToast from "@/components/CartToast";
 import { AuthProvider } from "@/lib/AuthContext";
 import { CartProvider } from "@/lib/CartContext";
+import { MenuDataProvider } from "@/lib/MenuDataContext";
 import "./globals.css";
 
 const paytoneOne = Paytone_One({
@@ -137,10 +138,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           }}
         />
         <AuthProvider>
-          <CartProvider>
-            {children}
-            <CartToast />
-          </CartProvider>
+          <MenuDataProvider>
+            <CartProvider>
+              {children}
+              <CartToast />
+            </CartProvider>
+          </MenuDataProvider>
         </AuthProvider>
       </body>
     </html>

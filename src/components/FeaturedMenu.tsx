@@ -7,20 +7,24 @@ import Reveal from "./Reveal";
 import { IconArrowRight } from "./icons";
 import {
   MENU_CATEGORIES,
-  MENU_ITEMS,
   isFoodCategory,
   type MenuCategory,
+  type MenuItem,
 } from "@/lib/menu-data";
 
 const FEATURED_PER_CATEGORY = 4;
 
-export default function FeaturedMenu() {
+export default function FeaturedMenu({ items: allItems }: { items: MenuItem[] }) {
   const [active, setActive] = useState<MenuCategory>(MENU_CATEGORIES[0]);
-  const items = MENU_ITEMS.filter((item) => item.category === active).slice(
+  const items = allItems.filter((item) => item.category === active).slice(
     0,
     FEATURED_PER_CATEGORY,
   );
   const foodCategory = isFoodCategory(active);
+
+  // Nothing to feature yet (menu table empty/not migrated) — skip the
+  // section entirely rather than showing an empty "Fan Favorites" block.
+  if (allItems.length === 0) return null;
 
   return (
     <section id="menu" className="bg-green">

@@ -1,6 +1,6 @@
 import "server-only";
 import { getDeliveryFeeForCity } from "./delivery-fee";
-import { MENU_ITEMS } from "./menu-data";
+import { getMenuItemsByIds } from "./menu-items";
 
 export const MIN_AMOUNT_PESOS = 20;
 // Sanity caps — not real business limits, just guards against a client
@@ -43,7 +43,11 @@ export type OrderPricingError = { error: string; status: number };
 // Shared by every order-creation route (GCash checkout, cash orders) so
 // price/validation logic lives in exactly one place and both payment
 // methods stay consistent — never trust a client-sent price or item list.
-export function computeOrderPricing(body: OrderPricingInput): OrderPricingResult | OrderPricingError {
+// Async because menu items now live in the database (see menu-items.ts)
+// instead of a hardcoded in-memory array.
+export async function computeOrderPricing(
+  body: OrderPricingInput,
+): Promise<OrderPricingResult | OrderPricingError> {
   // A body that parses as valid JSON but isn't an object (e.g. a bare
   // `null`, number, or string) would otherwise crash on the very next
   // property access below instead of returning a clean 400.
@@ -88,14 +92,24 @@ export function computeOrderPricing(body: OrderPricingInput): OrderPricingResult
     mergedQuantities.set(line.id, (mergedQuantities.get(line.id) ?? 0) + quantity);
   }
 
+  // One query for every distinct item the order references, rather than
+  // one query per item — a bag with 5 different drinks is still a single
+  // round trip.
+  const menuItemsById = new Map(
+    (await getMenuItemsByIds([...mergedQuantities.keys()])).map((item) => [item.id, item]),
+  );
+
   let itemsTotalPesos = 0;
   const items: OrderPricingResult["items"] = [];
   const summaryLines: string[] = [];
 
   for (const [id, quantity] of mergedQuantities) {
-    const menuItem = MENU_ITEMS.find((m) => m.id === id);
+    const menuItem = menuItemsById.get(id);
     if (!menuItem) {
       return { error: "Your bag contains an invalid item — please refresh and try again", status: 400 };
+    }
+    if (!menuItem.available) {
+      return { error: `${menuItem.name} is currently unavailable — please remove it from your bag.`, status: 400 };
     }
     if (quantity > MAX_ITEM_QUANTITY) {
       return {

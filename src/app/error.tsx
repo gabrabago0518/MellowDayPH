@@ -15,6 +15,18 @@ export default function Error({
 }) {
   useEffect(() => {
     console.error(error);
+    fetch("/api/errors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: error.message || "Unknown client error",
+        stack: error.stack,
+        route: window.location.pathname,
+      }),
+    }).catch(() => {
+      // Reporting the error must never itself throw on top of the error
+      // this boundary already exists to handle.
+    });
   }, [error]);
 
   return (

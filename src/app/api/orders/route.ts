@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { verifyCustomer } from "@/lib/customer-auth";
+import { logError } from "@/lib/error-log";
 import { computeOrderPricing, type OrderPricingInput } from "@/lib/order-pricing";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
@@ -10,6 +11,21 @@ type CashOrderInput = OrderPricingInput & { changeFor?: unknown };
 // placed immediately. Price is still recomputed server-side from real menu
 // data, exactly like the GCash route, so a client can't fabricate a total.
 export async function POST(request: Request) {
+  try {
+    return await handleCashOrder(request);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    await logError({
+      source: "server",
+      route: "/api/orders",
+      message,
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
+  }
+}
+
+async function handleCashOrder(request: Request) {
   const auth = await verifyCustomer(request);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
@@ -22,7 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const pricing = computeOrderPricing(body);
+  const pricing = await computeOrderPricing(body);
   if ("error" in pricing) {
     return NextResponse.json({ error: pricing.error }, { status: pricing.status });
   }
@@ -62,6 +78,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
+    await logError({ source: "server", route: "/api/orders", message: error.message });
     return NextResponse.json({ error: "Could not place your order. Please try again." }, { status: 502 });
   }
 

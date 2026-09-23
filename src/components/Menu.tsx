@@ -5,14 +5,14 @@ import MenuCard from "./MenuCard";
 import Reveal from "./Reveal";
 import {
   MENU_CATEGORIES,
-  MENU_ITEMS,
   isFoodCategory,
   type MenuCategory,
+  type MenuItem,
 } from "@/lib/menu-data";
 
-export default function Menu() {
+export default function Menu({ items: allItems }: { items: MenuItem[] }) {
   const [active, setActive] = useState<MenuCategory>(MENU_CATEGORIES[0]);
-  const items = MENU_ITEMS.filter((item) => item.category === active);
+  const items = allItems.filter((item) => item.category === active);
   const foodCategory = isFoodCategory(active);
 
   return (
@@ -47,21 +47,27 @@ export default function Menu() {
           </div>
         </Reveal>
 
-        <div key={active} className="animate-fade-in mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
-          {items.map((item, i) => (
-            <MenuCard
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              price={item.price}
-              color={item.color}
-              image={item.image}
-              description={item.description}
-              isFood={foodCategory}
-              delay={i * 60}
-            />
-          ))}
-        </div>
+        {allItems.length === 0 ? (
+          <p className="mt-10 text-center text-sm text-brown-900/60">
+            Our menu is being updated — please check back shortly.
+          </p>
+        ) : (
+          <div key={active} className="animate-fade-in mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
+            {items.map((item, i) => (
+              <MenuCard
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                price={item.price}
+                color={item.color}
+                image={item.image}
+                description={item.description}
+                isFood={foodCategory}
+                delay={i * 60}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

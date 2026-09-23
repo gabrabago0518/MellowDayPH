@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import {
+  IconAlertTriangle,
   IconBadge,
+  IconCup,
   IconGear,
   IconGrid,
   IconLogout,
@@ -15,8 +17,10 @@ import {
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: IconGrid, exact: true },
   { href: "/admin/orders", label: "Orders", icon: IconReceipt, exact: false },
+  { href: "/admin/menu", label: "Menu", icon: IconCup, exact: false },
   { href: "/admin/customers", label: "Customers", icon: IconUsers, exact: false },
   { href: "/admin/employees", label: "Employees", icon: IconBadge, exact: false },
+  { href: "/admin/errors", label: "Errors", icon: IconAlertTriangle, exact: false },
   { href: "/admin/settings", label: "Settings", icon: IconGear, exact: false },
 ];
 

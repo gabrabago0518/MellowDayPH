@@ -11,7 +11,8 @@ import Footer from "@/components/Footer";
 import OrderTracker from "@/components/OrderTracker";
 import { useAuth } from "@/lib/AuthContext";
 import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
-import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
+import { useMenuData } from "@/lib/MenuDataContext";
+import { formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { getEffectiveStage, getNextStage, getStageLabel } from "@/lib/order-stage";
 import { getOrders, getOrdersRemote, updateOrderStage, type Order } from "@/lib/orders";
 import { supabase } from "@/lib/supabase";
@@ -28,6 +29,7 @@ function formatDate(iso: string) {
 
 export default function OrdersPage() {
   const { user, loading: authLoading } = useAuth();
+  const { getItem } = useMenuData();
   const [orders, setOrders] = useState<Order[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [trackedIds, setTrackedIds] = useState<Set<string>>(new Set());
@@ -166,7 +168,7 @@ export default function OrdersPage() {
 
                 <ul className="mt-4 space-y-3 border-t border-brown-900/10 pt-4">
                   {order.items.map((item) => {
-                    const menuItem = MENU_ITEMS.find((m) => m.id === item.id);
+                    const menuItem = getItem(item.id);
                     const Illustration =
                       menuItem && isFoodCategory(menuItem.category) ? FoodIllustration : CupIllustration;
 

@@ -17,7 +17,8 @@ import {
   getDeliveryFeeForCity,
 } from "@/lib/delivery-fee";
 import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
-import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
+import { useMenuData } from "@/lib/MenuDataContext";
+import { formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { NCR_BARANGAYS, NCR_CITIES } from "@/lib/ncr-locations";
 import { saveOrder, rowToOrder } from "@/lib/orders";
 import { supabase } from "@/lib/supabase";
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { items, totalPrice, clearCart } = useCart();
+  const { getItem } = useMenuData();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -561,7 +563,7 @@ export default function CheckoutPage() {
                 </h2>
                 <ul className="mt-4 space-y-3">
                   {items.map((item) => {
-                    const menuItem = MENU_ITEMS.find((m) => m.id === item.id);
+                    const menuItem = getItem(item.id);
                     const Illustration =
                       menuItem && isFoodCategory(menuItem.category) ? FoodIllustration : CupIllustration;
 

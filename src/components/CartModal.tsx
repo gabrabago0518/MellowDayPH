@@ -6,12 +6,14 @@ import CupIllustration from "./CupIllustration";
 import FoodIllustration from "./FoodIllustration";
 import Logo from "./Logo";
 import { useCart } from "@/lib/CartContext";
-import { MENU_ITEMS, formatPrice, isFoodCategory } from "@/lib/menu-data";
+import { useMenuData } from "@/lib/MenuDataContext";
+import { formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { IconArrowRight, IconClose, IconMinus, IconPlus, IconTrash } from "./icons";
 
 export default function CartModal() {
   const { items, updateQuantity, removeItem, clearCart, totalItems, totalPrice, isOpen, closeCart } =
     useCart();
+  const { getItem } = useMenuData();
 
   return (
     <div
@@ -59,7 +61,7 @@ export default function CartModal() {
         ) : (
           <ul className="space-y-3">
             {items.map((item) => {
-              const menuItem = MENU_ITEMS.find((m) => m.id === item.id);
+              const menuItem = getItem(item.id);
               const Illustration = menuItem && isFoodCategory(menuItem.category)
                 ? FoodIllustration
                 : CupIllustration;

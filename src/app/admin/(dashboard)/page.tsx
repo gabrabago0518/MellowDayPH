@@ -7,9 +7,24 @@ import { formatPrice } from "@/lib/menu-data";
 import { formatDate, STATUS_LABEL, STATUS_STYLE } from "@/lib/admin-format";
 import type { AdminOverview } from "@/lib/admin-types";
 
+type CashReconciliation = {
+  id: string;
+  staff_username: string;
+  business_date: string;
+  total_orders: number;
+  total_sales: number;
+  cash_expected: number;
+  gcash_total: number;
+  cash_counted: number;
+  cash_difference: number;
+  created_at: string;
+};
+
 export default function AdminOverviewPage() {
   const [data, setData] = useState<AdminOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reconciliations, setReconciliations] = useState<CashReconciliation[] | null>(null);
+  const [reconciliationsError, setReconciliationsError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,6 +40,27 @@ export default function AdminOverviewPage() {
     }
     load().catch(() => {
       if (!cancelled) setError("Couldn't load the dashboard.");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const res = await adminFetch("/api/admin/cash-reconciliations");
+      if (cancelled) return;
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setReconciliationsError(body.error || "Couldn't load cash reconciliations.");
+        return;
+      }
+      const body = await res.json();
+      setReconciliations(body.reconciliations);
+    }
+    load().catch(() => {
+      if (!cancelled) setReconciliationsError("Couldn't load cash reconciliations.");
     });
     return () => {
       cancelled = true;
@@ -190,6 +226,72 @@ export default function AdminOverviewPage() {
                 </tbody>
               </table>
             </div>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="font-heading text-xl font-bold text-brown-900">End-of-Day Cash Reconciliations</h2>
+            <p className="mt-1 text-sm text-brown-900/60">
+              Recorded whenever a cashier counts the drawer at close.
+            </p>
+
+            {reconciliationsError && (
+              <p className="mt-4 text-sm text-brown-900/70">{reconciliationsError}</p>
+            )}
+            {!reconciliations && !reconciliationsError && (
+              <p className="mt-4 text-sm text-brown-900/60">Loading…</p>
+            )}
+
+            {reconciliations && (
+              <div className="mt-4 overflow-x-auto rounded-3xl bg-white/70 shadow-sm">
+                <table className="w-full min-w-[720px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-brown-900/10 text-xs font-semibold uppercase tracking-wide text-brown-900/50">
+                      <th className="px-4 py-3">Recorded</th>
+                      <th className="px-4 py-3">Staff</th>
+                      <th className="px-4 py-3 text-right">Orders</th>
+                      <th className="px-4 py-3 text-right">Sales</th>
+                      <th className="px-4 py-3 text-right">Cash Expected</th>
+                      <th className="px-4 py-3 text-right">Cash Counted</th>
+                      <th className="px-4 py-3 text-right">Difference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reconciliations.map((r) => (
+                      <tr key={r.id} className="border-b border-brown-900/5 last:border-0">
+                        <td className="px-4 py-3 text-brown-900/70">{formatDate(r.created_at)}</td>
+                        <td className="px-4 py-3 font-semibold text-brown-900">{r.staff_username}</td>
+                        <td className="px-4 py-3 text-right text-brown-900/70">{r.total_orders}</td>
+                        <td className="px-4 py-3 text-right text-brown-900/70">{formatPrice(r.total_sales)}</td>
+                        <td className="px-4 py-3 text-right text-brown-900/70">{formatPrice(r.cash_expected)}</td>
+                        <td className="px-4 py-3 text-right text-brown-900/70">{formatPrice(r.cash_counted)}</td>
+                        <td
+                          className={`px-4 py-3 text-right font-bold ${
+                            r.cash_difference === 0
+                              ? "text-brown-900/70"
+                              : r.cash_difference > 0
+                                ? "text-green-700"
+                                : "text-red-700"
+                          }`}
+                        >
+                          {r.cash_difference === 0
+                            ? "Exact"
+                            : r.cash_difference > 0
+                              ? `+${formatPrice(r.cash_difference)}`
+                              : `-${formatPrice(Math.abs(r.cash_difference))}`}
+                        </td>
+                      </tr>
+                    ))}
+                    {reconciliations.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-8 text-center text-brown-900/60">
+                          No cash reconciliations recorded yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         </>
       )}

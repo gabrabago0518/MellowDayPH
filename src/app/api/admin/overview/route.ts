@@ -1,20 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin } from "@/lib/admin-auth";
+import { phDateKey } from "@/lib/ph-date";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-
-// The store operates in the Philippines, so "today" and "this month" for
-// DTD/MTD stats follow Asia/Manila local time rather than the server's
-// (UTC) clock — otherwise orders near midnight would land on the wrong day.
-const phDateFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Manila",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-function phDateKey(date: Date): string {
-  return phDateFormatter.format(date);
-}
 
 export async function GET(request: Request) {
   const auth = await verifyAdmin(request);

@@ -217,3 +217,18 @@ Claude Code environment, hitting the live site every hour and reporting
 back only if it's actually down or erroring. Ask Claude (in this session
 or a new one in the same environment) if you want to check on it, change
 the schedule, or add a webhook/push alert to it.
+
+## 16. End-of-day cash reconciliation
+
+Dashboard → **SQL Editor** → New query → paste the contents of
+`migrations/014_create_cash_reconciliations.sql` → **Run**.
+
+Adds an "End of Day Summary" panel to the Cashier dashboard: today's order
+count, total sales, and a cash-vs-GCash breakdown, plus a field for the
+cashier to enter what they actually counted in the drawer. The expected
+cash figure is always recomputed from the orders table itself — never
+trusted from what the browser sends — so the recorded difference (over,
+short, or exact) is a real number, not something a cashier could fudge
+from their end. Every closing is saved with a timestamp and the cashier's
+username; the owner sees the full history at `/admin` → **Dashboard**,
+under "End-of-Day Cash Reconciliations." No Vercel configuration needed.

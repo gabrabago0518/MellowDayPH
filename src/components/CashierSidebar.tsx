@@ -44,8 +44,10 @@ export default function CashierSidebar({
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-brown-900/10 bg-white/60 px-4 py-6 md:flex">
+      {/* Desktop sidebar — sticky + full viewport height so Log Out stays
+          pinned at the bottom regardless of how tall the page content
+          grows, instead of scrolling away with it. */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-brown-900/10 bg-white/60 px-4 py-6 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto">
         <Link href="/cashier/orders" className="flex items-center gap-2.5 px-2">
           <Logo className="h-9 w-9" />
           <span className="font-heading text-base font-bold text-brown-900">

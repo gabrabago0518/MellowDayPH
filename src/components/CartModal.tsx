@@ -47,7 +47,7 @@ export default function CartModal() {
       aria-label="Your Mellow Bag"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`fixed right-4 top-24 z-[70] flex max-h-[75vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-3xl bg-cream shadow-2xl shadow-brown-900/20 transition-all duration-300 sm:right-6 ${
+      className={`fixed right-4 top-24 z-[70] flex max-h-[65vh] w-[80vw] max-w-xs flex-col overflow-hidden rounded-3xl bg-cream shadow-2xl shadow-brown-900/20 transition-all duration-300 sm:right-6 sm:max-w-sm ${
         isOpen
           ? "translate-y-0 scale-100 opacity-100"
           : "pointer-events-none -translate-y-3 scale-95 opacity-0"

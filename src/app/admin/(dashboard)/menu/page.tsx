@@ -353,11 +353,14 @@ export default function AdminMenuPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleAvailable(item)}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${
-                    item.available ? "bg-green/40 text-brown-900" : "bg-brown-100 text-brown-900/60"
+                  title={item.available ? "Mark this item as sold out" : "Make this item available again"}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
+                    item.available
+                      ? "bg-green/40 text-brown-900 hover:bg-red-100 hover:text-red-700"
+                      : "bg-brown-100 text-brown-900/60 hover:bg-green/40 hover:text-brown-900"
                   }`}
                 >
-                  {item.available ? "Available" : "Unavailable"}
+                  {item.available ? "Mark Not Available" : "Mark Available"}
                 </button>
                 <button
                   type="button"

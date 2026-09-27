@@ -204,6 +204,18 @@ export function IconCup(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+export function IconCoins(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <ellipse cx="9" cy="6.5" rx="5.5" ry="3" />
+      <path d="M3.5 6.5v4c0 1.66 2.46 3 5.5 3s5.5-1.34 5.5-3v-4" />
+      <path d="M3.5 10.5v4c0 1.66 2.46 3 5.5 3 .82 0 1.6-.1 2.29-.28" />
+      <ellipse cx="16" cy="14.5" rx="4.5" ry="2.3" />
+      <path d="M11.5 14.5v3c0 1.27 2.02 2.3 4.5 2.3s4.5-1.03 4.5-2.3v-3" />
+    </svg>
+  );
+}
+
 export function IconAlertTriangle(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>

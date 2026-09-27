@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useConfirm } from "./ConfirmDialog";
 import Logo from "./Logo";
@@ -38,6 +38,19 @@ function handleHashNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string
 
 function CartButton({ className = "" }: { className?: string }) {
   const { totalItems, isOpen, openCart, closeCart } = useCart();
+  const [bump, setBump] = useState(false);
+  const prevTotal = useRef(totalItems);
+
+  useEffect(() => {
+    if (totalItems > prevTotal.current) {
+      setBump(true);
+      const timer = setTimeout(() => setBump(false), 400);
+      prevTotal.current = totalItems;
+      return () => clearTimeout(timer);
+    }
+    prevTotal.current = totalItems;
+  }, [totalItems]);
+
   return (
     <button
       type="button"
@@ -47,7 +60,11 @@ function CartButton({ className = "" }: { className?: string }) {
     >
       <IconCart className="h-6 w-6" />
       {totalItems > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-green px-1 text-[10px] font-bold text-brown-900">
+        <span
+          className={`absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-green px-1 text-[10px] font-bold text-brown-900 ${
+            bump ? "animate-cart-bump" : ""
+          }`}
+        >
           {totalItems}
         </span>
       )}

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import CupIllustration from "./CupIllustration";
 import FoodIllustration from "./FoodIllustration";
 import Logo from "./Logo";
@@ -10,16 +11,42 @@ import { useMenuData } from "@/lib/MenuDataContext";
 import { formatPrice, isFoodCategory } from "@/lib/menu-data";
 import { IconArrowRight, IconClose, IconMinus, IconPlus, IconTrash } from "./icons";
 
+// How long the bag stays open on its own after the last change, once it's
+// auto-popped open from adding something — long enough to glance at, short
+// enough not to trap someone who's still browsing the menu.
+const AUTO_CLOSE_MS = 2800;
+
 export default function CartModal() {
-  const { items, updateQuantity, removeItem, clearCart, totalItems, totalPrice, isOpen, closeCart } =
-    useCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    totalItems,
+    totalPrice,
+    isOpen,
+    closeCart,
+    lastAddedId,
+  } = useCart();
   const { getItem } = useMenuData();
+  const [hovered, setHovered] = useState(false);
+
+  // Auto-closes after a pause in activity, but never while the pointer is
+  // actually over the bag — nobody wants it to vanish while they're reading
+  // it or about to click something.
+  useEffect(() => {
+    if (!isOpen || hovered) return;
+    const timer = setTimeout(closeCart, AUTO_CLOSE_MS);
+    return () => clearTimeout(timer);
+  }, [isOpen, hovered, items, closeCart]);
 
   return (
     <div
       role="dialog"
       aria-hidden={!isOpen}
       aria-label="Your Mellow Bag"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className={`fixed right-4 top-24 z-[70] flex max-h-[75vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-3xl bg-cream shadow-2xl shadow-brown-900/20 transition-all duration-300 sm:right-6 ${
         isOpen
           ? "translate-y-0 scale-100 opacity-100"
@@ -69,7 +96,9 @@ export default function CartModal() {
               return (
                 <li
                   key={item.id}
-                  className="flex items-center gap-3 rounded-2xl bg-white/70 p-3 shadow-sm"
+                  className={`flex items-center gap-3 rounded-2xl bg-white/70 p-3 shadow-sm ${
+                    item.id === lastAddedId ? "animate-cart-item-flash" : ""
+                  }`}
                 >
                   <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-cream">
                     {menuItem?.image ? (

@@ -29,6 +29,10 @@ type CartContextValue = {
   openCart: () => void;
   closeCart: () => void;
   toast: string | null;
+  // The item id most recently added/incremented, and briefly — self-clears
+  // — so the bag can flash/highlight that one row instead of the whole
+  // list when it pops open.
+  lastAddedId: string | null;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -39,12 +43,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), 2200);
     return () => clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => {
+    if (!lastAddedId) return;
+    const timer = setTimeout(() => setLastAddedId(null), 700);
+    return () => clearTimeout(timer);
+  }, [lastAddedId]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -78,6 +89,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...prev, { id, name, price, quantity: 1 }];
     });
     setToast(`${name} added to your bag`);
+    setLastAddedId(id);
+    setIsOpen(true);
   }, []);
 
   const removeItem = useCallback((id: string) => {
@@ -120,6 +133,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       openCart,
       closeCart,
       toast,
+      lastAddedId,
     }),
     [
       items,
@@ -133,6 +147,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       openCart,
       closeCart,
       toast,
+      lastAddedId,
     ],
   );
 

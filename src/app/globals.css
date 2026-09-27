@@ -136,3 +136,39 @@ html {
 .animate-marquee {
   animation: marquee 22s linear infinite;
 }
+
+/* Cart badge count bumping when an item is added */
+@keyframes cart-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.35);
+  }
+  60% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-cart-bump {
+  animation: cart-bump 0.4s ease-out;
+}
+
+/* Brief highlight on the bag row for whatever was just added/incremented */
+@keyframes cart-item-flash {
+  0% {
+    background-color: rgba(169, 196, 111, 0.6);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.animate-cart-item-flash {
+  animation: cart-item-flash 0.7s ease-out;
+}
